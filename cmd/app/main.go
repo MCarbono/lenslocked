@@ -46,8 +46,9 @@ func Start() {
 		TokenManager:      token.ManagerImpl{},
 	}
 	pwResetService := &services.PasswordResetService{
-		DB:           db,
-		TokenManager: token.ManagerImpl{},
+		DB:             db,
+		UserRepository: repository.NewUserRepositoryPostgres(db),
+		TokenManager:   token.ManagerImpl{},
 	}
 	usersC := controllers.Users{
 		UserService:          userService,
