@@ -187,7 +187,7 @@ func (u Users) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Sign the user in now that they have reset their passord.
-	//Anyerrors from this point onward should redirect to the sign in page.
+	//Any errors from this point onward should redirect to the sign in page.
 	session, err := u.SessionService.Create(user.ID)
 	if err != nil {
 		fmt.Println(err)
