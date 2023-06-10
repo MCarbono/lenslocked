@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"lenslocked/domain/entity"
-	"lenslocked/models"
 	repository "lenslocked/repository/sqlite"
+	"lenslocked/services"
 	"lenslocked/token"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -34,10 +34,10 @@ func TestCreate(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &models.UserService{
+	var userService = &services.UserService{
 		UserRepository: userRepository,
 	}
-	var sessionService = &models.SessionService{
+	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
@@ -125,10 +125,10 @@ func TestProcessSignIn(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &models.UserService{
+	var userService = &services.UserService{
 		UserRepository: userRepository,
 	}
-	var sessionService = &models.SessionService{
+	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
@@ -209,10 +209,10 @@ func TestProcessSignOut(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &models.UserService{
+	var userService = &services.UserService{
 		UserRepository: userRepository,
 	}
-	var sessionService = &models.SessionService{
+	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,

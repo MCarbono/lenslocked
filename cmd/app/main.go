@@ -8,7 +8,7 @@ import (
 	"lenslocked/controllers"
 	"lenslocked/gateway"
 	"lenslocked/migrations"
-	"lenslocked/models"
+	"lenslocked/services"
 	"lenslocked/token"
 
 	repository "lenslocked/repository/postgres"
@@ -29,7 +29,7 @@ func Start() {
 		panic(err)
 	}
 	fmt.Println("Database connected!")
-	userService := &models.UserService{
+	userService := &services.UserService{
 		UserRepository: repository.NewUserRepositoryPostgres(db),
 		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
 			Host:     cfg.SMTP.Host,
@@ -39,13 +39,13 @@ func Start() {
 		}),
 		DB: db,
 	}
-	sessionService := &models.SessionService{
+	sessionService := &services.SessionService{
 		DB:                db,
 		SessionRepository: repository.NewSessionRepositoryPostgres(db),
 		UserRepository:    repository.NewUserRepositoryPostgres(db),
 		TokenManager:      token.ManagerImpl{},
 	}
-	pwResetService := &models.PasswordResetService{
+	pwResetService := &services.PasswordResetService{
 		DB: db,
 	}
 	usersC := controllers.Users{

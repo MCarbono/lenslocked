@@ -3,7 +3,7 @@ package controllers
 import (
 	"fmt"
 	"lenslocked/context"
-	"lenslocked/models"
+	"lenslocked/services"
 	"net/http"
 	"net/url"
 )
@@ -16,9 +16,9 @@ type Users struct {
 		CheckYourEmail Template
 		ResetPassword  Template
 	}
-	UserService          *models.UserService
-	SessionService       *models.SessionService
-	PasswordResetService *models.PasswordResetService
+	UserService          *services.UserService
+	SessionService       *services.SessionService
+	PasswordResetService *services.PasswordResetService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {

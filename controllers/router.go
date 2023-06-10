@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"lenslocked/context"
-	"lenslocked/models"
+	"lenslocked/services"
 	"lenslocked/templates"
 	"lenslocked/views"
 	"net/http"
@@ -123,7 +123,7 @@ func HTMLResponse(next http.Handler) http.Handler {
 }
 
 type UserMiddleware struct {
-	SessionService *models.SessionService
+	SessionService *services.SessionService
 }
 
 func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
