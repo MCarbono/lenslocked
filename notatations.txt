@@ -1,0 +1,53 @@
+get inside the docker container
+
+docker exec -it c6a8f2312e26 /usr/bin/psql -U baloo -d lenslocked
+
+
+postgres sql driver
+
+go get github.com/jackc/pgx/v4
+
+_ "github.com/jackc/pgx/v4/stdlib" 
+
+
+lib de hash password
+
+go get golang.org/x/crypto/bcrypt
+
+lib do sqlite go
+
+github.com/mattn/go-sqlite3
+
+lib de migrations - goose
+go install github.com/pressly/goose/v3/cmd/goose@v3
+
+verificar status das migrations
+goose postgres "host=localhost port=5432 user=baloo password=junglebook dbname=lenslocked sslmode=disable" status
+
+rodar uma migration 
+goose postgres "host=localhost port=5432 user=baloo password=junglebook dbname=lenslocked sslmode=disable" up
+
+rollback da migration
+goose postgres "host=localhost port=5432 user=baloo password=junglebook dbname=lenslocked sslmode=disable" down
+
+
+resetar as migrations
+goose postgres "host=localhost port=5432 user=baloo password=junglebook dbname=lenslocked sslmode=disable" reset 
+
+reordenar a ordem das migrations
+goose fix
+
+
+comando para criar um arquivo de migrations
+goose create nome_da_tabela sql
+
+informacoes do sqlite com go
+https://gosamples.dev/sqlite-intro/
+
+
+lib de SMTP
+go get github.com/go-mail/mail/v2 
+
+
+.ENV lib
+go get github.com/joho/godotenv
