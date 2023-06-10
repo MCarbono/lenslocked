@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"lenslocked/domain/entity"
+	"lenslocked/domain/repository"
 	"lenslocked/rand"
 	"lenslocked/token"
 	"strings"
@@ -25,15 +26,14 @@ type PasswordResetService struct {
 	BytesPerToken int
 	// Duration is the amount of time that a PasswordReset is valid for.
 	// Defaults to DefaultResetDuration
-	Duration     time.Duration
-	TokenManager token.Manager
+	Duration       time.Duration
+	TokenManager   token.Manager
+	UserRepository repository.UserRepository
 }
 
 func (service *PasswordResetService) Create(email string) (*entity.PasswordReset, error) {
 	email = strings.ToLower(email)
-	var userID int
-	row := service.DB.QueryRow(`SELECT id FROM users WHERE email = $1`, email)
-	err := row.Scan(&userID)
+	user, err := service.UserRepository.FindByEmail(email)
 	if err != nil {
 		//TODO: Consider returning a specific erroe when the user does not exist.
 		return nil, fmt.Errorf("create: %w", err)
@@ -52,8 +52,8 @@ func (service *PasswordResetService) Create(email string) (*entity.PasswordReset
 	if duration == 0 {
 		duration = DefaultResetDuration
 	}
-	passwordReset := entity.NewPasswordReset(userID, token, tokenHash, duration)
-	row = service.DB.QueryRow(`
+	passwordReset := entity.NewPasswordReset(user.ID, token, tokenHash, duration)
+	row := service.DB.QueryRow(`
 		INSERT INTO password_resets (user_id, token_hash, expires_at)
 		values ($1, $2, $3) ON CONFLICT (user_id) DO
 		UPDATE
