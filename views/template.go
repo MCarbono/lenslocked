@@ -26,7 +26,7 @@ type Template struct {
 func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface{}) {
 	tpl, err := t.htmlTpl.Clone()
 	if err != nil {
-		log.Printf("cloning tempalte: %v", err)
+		log.Printf("cloning template: %v", err)
 		http.Error(w, "There was an error rendering the page.", http.StatusInternalServerError)
 		return
 	}
