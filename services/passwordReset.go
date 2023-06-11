@@ -29,6 +29,7 @@ type PasswordResetService struct {
 	Duration       time.Duration
 	TokenManager   token.Manager
 	UserRepository repository.UserRepository
+	PasswordReset  repository.PasswordResetRepository
 }
 
 func (service *PasswordResetService) Create(email string) (*entity.PasswordReset, error) {
@@ -53,16 +54,11 @@ func (service *PasswordResetService) Create(email string) (*entity.PasswordReset
 		duration = DefaultResetDuration
 	}
 	passwordReset := entity.NewPasswordReset(user.ID, token, tokenHash, duration)
-	row := service.DB.QueryRow(`
-		INSERT INTO password_resets (user_id, token_hash, expires_at)
-		values ($1, $2, $3) ON CONFLICT (user_id) DO
-		UPDATE
-		SET token_hash = $2, expires_at = $3
-		RETURNING id;`, passwordReset.UserID, passwordReset.TokenHash, passwordReset.ExpiresAt)
-	err = row.Scan(&passwordReset.ID)
+	id, err := service.PasswordReset.Create(passwordReset)
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
+	passwordReset.ID = id
 	return passwordReset, nil
 }
 
