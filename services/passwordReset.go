@@ -65,7 +65,7 @@ func (service *PasswordResetService) Create(email, resetPasswordURL string) (*en
 	vals := url.Values{
 		"token": {passwordReset.Token},
 	}
-	err = service.forgotPassword(user.Email, fmt.Sprintf("%v%v", resetPasswordURL, vals.Encode()))
+	err = service.forgotPassword(user.Email, resetPasswordURL+vals.Encode())
 	if err != nil {
 		//deletar o password_reset caso de erro
 		return nil, fmt.Errorf("forgot password email: %w", err)
