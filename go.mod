@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/go-mail/mail/v2 v2.3.0 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
