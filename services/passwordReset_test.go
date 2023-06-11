@@ -3,11 +3,13 @@ package services
 import (
 	"database/sql"
 	"lenslocked/domain/entity"
+	"lenslocked/gen/mock"
 	repository "lenslocked/repository/sqlite"
 	"lenslocked/token"
 	"os/exec"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	_ "github.com/mattn/go-sqlite3"
@@ -36,13 +38,20 @@ func TestCreate(t *testing.T) {
 		UserRepository: userRepository,
 		PasswordReset:  passwordResetRepository,
 	}
+
+	type mockFields struct {
+		mockEmailProvider *mock.MockEmailProvider
+	}
+
 	type args struct {
 		email            string
 		passwordResetURL string
 	}
+
 	type test struct {
-		name string
-		args args
+		name  string
+		args  args
+		mocks func(f *mockFields)
 	}
 	tests := []test{
 		{
@@ -51,12 +60,21 @@ func TestCreate(t *testing.T) {
 				email:            "teste@email.com",
 				passwordResetURL: "http://localhost:3000/reset-pw?",
 			},
+			mocks: func(f *mockFields) {
+				f.mockEmailProvider.EXPECT().Send(gomock.Any()).Return(nil).Times(1)
+			},
 		},
 	}
 	for _, scenario := range tests {
 		t.Run(scenario.name, func(t *testing.T) {
 			defer db.Exec("DELETE from users;")
 			defer db.Exec("DELETE from password_resets;")
+			mockCtrl := gomock.NewController(t)
+			f := mockFields{
+				mockEmailProvider: mock.NewMockEmailProvider(mockCtrl),
+			}
+			scenario.mocks(&f)
+			passwordResetService.EmailGateway = f.mockEmailProvider
 			_, err := userService.Create("teste@email.com", "password")
 			if err != nil {
 				t.Fatal(err)
