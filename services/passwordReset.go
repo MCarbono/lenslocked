@@ -11,6 +11,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -88,22 +90,27 @@ func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
 }
 
 // We are going to consume a token and return the user associated with it, or return an error if the token wasn't valid for any reason.
-func (service *PasswordResetService) Consume(token string) (*entity.User, error) {
+func (service *PasswordResetService) Consume(token, password string) (*entity.User, error) {
 	tokenHash := service.TokenManager.Hash(token)
-	var user entity.User
-	var pwReset entity.PasswordReset
-	row := service.DB.QueryRow(`
-		SELECT password_resets.id,
-			password_resets.expires_at,
-			users.id,
-			users.email,
-			users.password_hash
-		FROM password_resets
-			JOIN users ON users.id = password_resets.user_id
-		WHERE password_resets.token_hash = $1;`, tokenHash)
-	err := row.Scan(
-		&pwReset.ID, &pwReset.ExpiresAt,
-		&user.ID, &user.Email, &user.PasswordHash)
+	// var user entity.User
+	// var pwReset entity.PasswordReset
+	// row := service.DB.QueryRow(`
+	// 	SELECT password_resets.id,
+	// 		password_resets.expires_at,
+	// 		users.id,
+	// 		users.email,
+	// 		users.password_hash
+	// 	FROM password_resets
+	// 		JOIN users ON users.id = password_resets.user_id
+	// 	WHERE password_resets.token_hash = $1;`, tokenHash)
+	// err := row.Scan(
+	// 	&pwReset.ID, &pwReset.ExpiresAt,
+	// 	&user.ID, &user.Email, &user.PasswordHash)
+	pwReset, err := service.PasswordReset.FindByTokenHash(tokenHash)
+	if err != nil {
+		return nil, fmt.Errorf("consume: %w", err)
+	}
+	user, err := service.UserRepository.FindByID(pwReset.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("consume: %w", err)
 	}
@@ -114,7 +121,19 @@ func (service *PasswordResetService) Consume(token string) (*entity.User, error)
 	if err != nil {
 		return nil, fmt.Errorf("consume: %w", err)
 	}
-	return &user, nil
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("update password: %w", err)
+	}
+	passwordHash := string(hashedBytes)
+	_, err = service.DB.Exec(`
+		UPDATE users
+		SET password_hash = $2
+		WHERE id = $1`, user.ID, passwordHash)
+	if err != nil {
+		return nil, fmt.Errorf("update password: %w", err)
+	}
+	return user, nil
 }
 
 func (service *PasswordResetService) delete(id int) error {
