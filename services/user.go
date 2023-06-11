@@ -55,20 +55,6 @@ func (us *UserService) Authenticate(email, password string) (*entity.User, error
 	return user, nil
 }
 
-func (us *UserService) ForgotPassword(to, resetURL string) error {
-	email := entity.NewEmail(
-		DefaultSender,
-		to,
-		"Reset your password",
-		"To reset your password, please visit the following link: "+resetURL,
-		`<p>To reset your password, please visit the following link: <a href="`+resetURL+`">`+resetURL+`</a></p>`,
-	)
-	if err := us.EmailGateway.Send(email); err != nil {
-		return fmt.Errorf("forgot password email: %w", err)
-	}
-	return nil
-}
-
 func (us *UserService) UpdatePassword(userID int, password string) error {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

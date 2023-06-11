@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"lenslocked/domain/entity"
 	"lenslocked/domain/repository"
+	"lenslocked/gateway"
 	"lenslocked/rand"
 	"lenslocked/token"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -30,9 +32,10 @@ type PasswordResetService struct {
 	TokenManager   token.Manager
 	UserRepository repository.UserRepository
 	PasswordReset  repository.PasswordResetRepository
+	EmailGateway   gateway.EmailProvider
 }
 
-func (service *PasswordResetService) Create(email string) (*entity.PasswordReset, error) {
+func (service *PasswordResetService) Create(email, resetPasswordURL string) (*entity.PasswordReset, error) {
 	email = strings.ToLower(email)
 	user, err := service.UserRepository.FindByEmail(email)
 	if err != nil {
@@ -59,7 +62,29 @@ func (service *PasswordResetService) Create(email string) (*entity.PasswordReset
 		return nil, fmt.Errorf("create: %w", err)
 	}
 	passwordReset.ID = id
+	vals := url.Values{
+		"token": {passwordReset.Token},
+	}
+	err = service.forgotPassword(user.Email, fmt.Sprintf("%v%v", resetPasswordURL, vals.Encode()))
+	if err != nil {
+		//deletar o password_reset caso de erro
+		return nil, fmt.Errorf("forgot password email: %w", err)
+	}
 	return passwordReset, nil
+}
+
+func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
+	email := entity.NewEmail(
+		DefaultSender,
+		to,
+		"Reset your password",
+		"To reset your password, please visit the following link: "+resetURL,
+		`<p>To reset your password, please visit the following link: <a href="`+resetURL+`">`+resetURL+`</a></p>`,
+	)
+	if err := us.EmailGateway.Send(email); err != nil {
+		return fmt.Errorf("forgot password email: %w", err)
+	}
+	return nil
 }
 
 // We are going to consume a token and return the user associated with it, or return an error if the token wasn't valid for any reason.
