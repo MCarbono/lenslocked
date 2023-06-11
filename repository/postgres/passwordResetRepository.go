@@ -34,7 +34,16 @@ func (p *PasswordResetPostgres) FindByID(id int) (*entity.PasswordReset, error) 
 	var passwordResets entity.PasswordReset
 	row := p.DB.QueryRow(`SELECT * FROM password_resets WHERE id = $1`, id)
 	if err := row.Scan(&passwordResets.ID, &passwordResets.UserID, &passwordResets.TokenHash, &passwordResets.ExpiresAt); err != nil {
-		return nil, fmt.Errorf("password_resets: %w", err)
+		return nil, fmt.Errorf("find by id password_resets: %w", err)
+	}
+	return &passwordResets, nil
+}
+
+func (p *PasswordResetPostgres) FindByTokenHash(tokenHash string) (*entity.PasswordReset, error) {
+	var passwordResets entity.PasswordReset
+	row := p.DB.QueryRow(`SELECT * FROM password_resets WHERE token_hash = $1`, tokenHash)
+	if err := row.Scan(&passwordResets.ID, &passwordResets.UserID, &passwordResets.TokenHash, &passwordResets.ExpiresAt); err != nil {
+		return nil, fmt.Errorf("find by token hash password_resets: %w", err)
 	}
 	return &passwordResets, nil
 }

@@ -39,3 +39,12 @@ func (p *PasswordResetSQLite) FindByID(id int) (*entity.PasswordReset, error) {
 	}
 	return &passwordResets, nil
 }
+
+func (p *PasswordResetSQLite) FindByTokenHash(tokenHash string) (*entity.PasswordReset, error) {
+	var passwordResets entity.PasswordReset
+	row := p.DB.QueryRow(`SELECT * FROM password_resets WHERE token_hash = ?`, tokenHash)
+	if err := row.Scan(&passwordResets.ID, &passwordResets.UserID, &passwordResets.TokenHash, &passwordResets.ExpiresAt); err != nil {
+		return nil, fmt.Errorf("password_resets: %w", err)
+	}
+	return &passwordResets, nil
+}
