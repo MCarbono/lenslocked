@@ -5,7 +5,6 @@ import (
 	"lenslocked/context"
 	"lenslocked/services"
 	"net/http"
-	"net/url"
 )
 
 type Users struct {
@@ -136,17 +135,7 @@ func (u Users) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data.Email = r.FormValue("email")
-	pwReset, err := u.PasswordResetService.Create(data.Email)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-	vals := url.Values{
-		"token": {pwReset.Token},
-	}
-	//TODO: Make the URl here configurable
-	err = u.UserService.ForgotPassword(data.Email, "http://localhost:3000/reset-pw?"+vals.Encode())
+	_, err := u.PasswordResetService.Create(data.Email, "http://localhost:3000/reset-pw?")
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
