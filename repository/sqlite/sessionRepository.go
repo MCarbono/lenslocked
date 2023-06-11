@@ -40,14 +40,6 @@ func (s *SessionRepositorySQLite) Upsert(session *entity.Session) (*entity.Sessi
 	if err != nil {
 		return nil, err
 	}
-	// row, err := s.DB.Exec(`INSERT INTO sessions (user_id, token_hash) VALUES (?, ?)`, session.UserID, session.TokenHash)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// id, err := row.LastInsertId()
-	// if err != nil {
-	// 	return nil, nil
-	// }
 	session.ID = int(id)
 	return session, nil
 }
