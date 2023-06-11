@@ -55,6 +55,7 @@ func (us *UserService) Authenticate(email, password string) (*entity.User, error
 	return user, nil
 }
 
+//TODO: remove this method
 func (us *UserService) UpdatePassword(userID int, password string) error {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
