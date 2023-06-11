@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"lenslocked/domain/entity"
 )
 
@@ -28,4 +29,13 @@ func (p *PasswordResetSQLite) Create(passwordReset *entity.PasswordReset) (int, 
 		return 0, nil
 	}
 	return int(id), nil
+}
+
+func (p *PasswordResetSQLite) FindByID(id int) (*entity.PasswordReset, error) {
+	var passwordResets entity.PasswordReset
+	row := p.DB.QueryRow(`SELECT * FROM password_resets WHERE id = ?`, id)
+	if err := row.Scan(&passwordResets.ID, &passwordResets.UserID, &passwordResets.TokenHash, &passwordResets.ExpiresAt); err != nil {
+		return nil, fmt.Errorf("password_resets: %w", err)
+	}
+	return &passwordResets, nil
 }
