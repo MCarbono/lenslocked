@@ -31,13 +31,7 @@ func Start() {
 	fmt.Println("Database connected!")
 	userService := &services.UserService{
 		UserRepository: repository.NewUserRepositoryPostgres(db),
-		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
-			Host:     cfg.SMTP.Host,
-			Port:     cfg.SMTP.Port,
-			Username: cfg.SMTP.Username,
-			Password: cfg.SMTP.Password,
-		}),
-		DB: db,
+		DB:             db,
 	}
 	sessionService := &services.SessionService{
 		DB:                db,
@@ -50,6 +44,12 @@ func Start() {
 		UserRepository: repository.NewUserRepositoryPostgres(db),
 		PasswordReset:  repository.NewPasswordResetPostgres(db),
 		TokenManager:   token.ManagerImpl{},
+		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
+			Host:     cfg.SMTP.Host,
+			Port:     cfg.SMTP.Port,
+			Username: cfg.SMTP.Username,
+			Password: cfg.SMTP.Password,
+		}),
 	}
 	usersC := controllers.Users{
 		UserService:          userService,
