@@ -101,9 +101,9 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 	if time.Now().After(pwReset.ExpiresAt) {
 		return nil, fmt.Errorf("token expired: %v", token)
 	}
-	err = service.delete(pwReset.ID)
+	err = service.PasswordReset.Delete(pwReset)
 	if err != nil {
-		return nil, fmt.Errorf("consume: %w", err)
+		return nil, fmt.Errorf("delete password reset: %w", err)
 	}
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -135,14 +135,4 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 		return nil, fmt.Errorf("upsert session: %w", err)
 	}
 	return insertedSession, err
-}
-
-func (service *PasswordResetService) delete(id int) error {
-	_, err := service.DB.Exec(`
-		DELETE FROM password_resets
-		WHERE id = $1;`, id)
-	if err != nil {
-		return fmt.Errorf("delete: %w", err)
-	}
-	return nil
 }

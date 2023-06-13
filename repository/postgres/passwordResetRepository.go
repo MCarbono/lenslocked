@@ -47,3 +47,10 @@ func (p *PasswordResetPostgres) FindByTokenHash(tokenHash string) (*entity.Passw
 	}
 	return &passwordResets, nil
 }
+
+func (p *PasswordResetPostgres) Delete(passwordReset *entity.PasswordReset) error {
+	_, err := p.DB.Exec(`
+		DELETE FROM password_resets
+		WHERE id = $1;`, passwordReset.ID)
+	return err
+}

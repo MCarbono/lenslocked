@@ -48,3 +48,10 @@ func (p *PasswordResetSQLite) FindByTokenHash(tokenHash string) (*entity.Passwor
 	}
 	return &passwordResets, nil
 }
+
+func (p *PasswordResetSQLite) Delete(passwordReset *entity.PasswordReset) error {
+	_, err := p.DB.Exec(`
+		DELETE FROM password_resets
+		WHERE id = ?;`, passwordReset.ID)
+	return err
+}
