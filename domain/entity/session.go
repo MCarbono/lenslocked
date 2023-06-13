@@ -9,3 +9,11 @@ type Session struct {
 	Token     string
 	TokenHash string
 }
+
+func NewSession(userID int, token, tokenHash string) *Session {
+	return &Session{
+		UserID:    userID,
+		Token:     token,
+		TokenHash: tokenHash,
+	}
+}

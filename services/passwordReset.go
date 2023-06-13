@@ -125,12 +125,8 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 	if err != nil {
 		return nil, fmt.Errorf("create token: %w", err)
 	}
-	session := entity.Session{
-		UserID:    pwReset.UserID,
-		Token:     token,
-		TokenHash: tokenHash,
-	}
-	insertedSession, err := service.SessionRepository.Upsert(&session)
+
+	insertedSession, err := service.SessionRepository.Upsert(entity.NewSession(pwReset.UserID, token, tokenHash))
 	if err != nil {
 		return nil, fmt.Errorf("upsert session: %w", err)
 	}
