@@ -160,22 +160,21 @@ func (u Users) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
 	data.Token = r.FormValue("token")
 	data.Password = r.FormValue("password")
 
-	user, err := u.PasswordResetService.Consume(data.Token, data.Password)
+	session, err := u.PasswordResetService.Consume(data.Token, data.Password)
 	if err != nil {
 		fmt.Println(err)
 		// TODO: Distinguish between server errors and invalid token errors.
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-
-	//Sign the user in now that they have reset their passord.
+	//Sign the user in now that they have reset their password.
 	//Any errors from this point onward should redirect to the sign in page.
-	session, err := u.SessionService.Create(user.ID)
-	if err != nil {
-		fmt.Println(err)
-		http.Redirect(w, r, "/signin", http.StatusFound)
-		return
-	}
+	// session, err := u.SessionService.Create(user.ID)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	http.Redirect(w, r, "/signin", http.StatusFound)
+	// 	return
+	// }
 	setCookie(w, CookieSession, session.Token)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
