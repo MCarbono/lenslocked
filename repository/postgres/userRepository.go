@@ -56,3 +56,11 @@ func (p *UserRepositoryPostgres) FindByTokenHash(token string) (*entity.User, er
 	}
 	return &user, nil
 }
+
+func (p *UserRepositoryPostgres) UpdatePasswordHash(id int, passwordHash string) error {
+	_, err := p.DB.Exec(`
+		UPDATE users
+		SET password_hash = $2
+		WHERE id = $1`, id, passwordHash)
+	return err
+}

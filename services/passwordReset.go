@@ -110,10 +110,7 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 		return nil, fmt.Errorf("update password: %w", err)
 	}
 	passwordHash := string(hashedBytes)
-	_, err = service.DB.Exec(`
-		UPDATE users
-		SET password_hash = $2
-		WHERE id = $1`, pwReset.UserID, passwordHash)
+	err = service.UserRepository.UpdatePasswordHash(pwReset.UserID, passwordHash)
 	if err != nil {
 		return nil, fmt.Errorf("update password: %w", err)
 	}

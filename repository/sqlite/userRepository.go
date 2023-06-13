@@ -59,3 +59,11 @@ func (p *UserRepositorySQLite) FindByTokenHash(token string) (*entity.User, erro
 	}
 	return &user, nil
 }
+
+func (p *UserRepositorySQLite) UpdatePasswordHash(id int, passwordHash string) error {
+	_, err := p.DB.Exec(`
+		UPDATE users
+		SET password_hash = ?
+		WHERE id = ?`, passwordHash, id)
+	return err
+}
