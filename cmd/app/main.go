@@ -50,6 +50,7 @@ func Start() {
 			Username: cfg.SMTP.Username,
 			Password: cfg.SMTP.Password,
 		}),
+		SessionRepository: repository.NewSessionRepositoryPostgres(db),
 	}
 	usersC := controllers.Users{
 		UserService:          userService,
