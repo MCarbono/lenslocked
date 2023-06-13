@@ -8,10 +8,6 @@ import (
 	"lenslocked/token"
 )
 
-const (
-	MinBytesPerToken = 32
-)
-
 type SessionService struct {
 	DB                *sql.DB
 	SessionRepository repository.SessionRepository
