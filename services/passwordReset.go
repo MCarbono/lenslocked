@@ -92,20 +92,7 @@ func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
 // We are going to consume a token and return the user associated with it, or return an error if the token wasn't valid for any reason.
 func (service *PasswordResetService) Consume(token, password string) (*entity.User, error) {
 	tokenHash := service.TokenManager.Hash(token)
-	// var user entity.User
-	// var pwReset entity.PasswordReset
-	// row := service.DB.QueryRow(`
-	// 	SELECT password_resets.id,
-	// 		password_resets.expires_at,
-	// 		users.id,
-	// 		users.email,
-	// 		users.password_hash
-	// 	FROM password_resets
-	// 		JOIN users ON users.id = password_resets.user_id
-	// 	WHERE password_resets.token_hash = $1;`, tokenHash)
-	// err := row.Scan(
-	// 	&pwReset.ID, &pwReset.ExpiresAt,
-	// 	&user.ID, &user.Email, &user.PasswordHash)
+
 	pwReset, err := service.PasswordReset.FindByTokenHash(tokenHash)
 	if err != nil {
 		return nil, fmt.Errorf("consume: %w", err)
