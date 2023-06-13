@@ -19,6 +19,7 @@ const (
 	// DefaultResetDuration is the default time that a PasswordReset is
 	// valid for.
 	DefaultResetDuration = 1 * time.Hour
+	MinBytesPerToken     = 32
 )
 
 type PasswordResetService struct {
@@ -30,11 +31,12 @@ type PasswordResetService struct {
 	BytesPerToken int
 	// Duration is the amount of time that a PasswordReset is valid for.
 	// Defaults to DefaultResetDuration
-	Duration       time.Duration
-	TokenManager   token.Manager
-	UserRepository repository.UserRepository
-	PasswordReset  repository.PasswordResetRepository
-	EmailGateway   gateway.EmailProvider
+	Duration          time.Duration
+	TokenManager      token.Manager
+	UserRepository    repository.UserRepository
+	PasswordReset     repository.PasswordResetRepository
+	EmailGateway      gateway.EmailProvider
+	SessionRepository repository.SessionRepository
 }
 
 func (service *PasswordResetService) Create(email, resetPasswordURL string) (*entity.PasswordReset, error) {
@@ -89,15 +91,10 @@ func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
 	return nil
 }
 
-// We are going to consume a token and return the user associated with it, or return an error if the token wasn't valid for any reason.
-func (service *PasswordResetService) Consume(token, password string) (*entity.User, error) {
+// We are going to consume a token and return the session associated with it, or return an error if the token wasn't valid for any reason.
+func (service *PasswordResetService) Consume(token, password string) (*entity.Session, error) {
 	tokenHash := service.TokenManager.Hash(token)
-
 	pwReset, err := service.PasswordReset.FindByTokenHash(tokenHash)
-	if err != nil {
-		return nil, fmt.Errorf("consume: %w", err)
-	}
-	user, err := service.UserRepository.FindByID(pwReset.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("consume: %w", err)
 	}
@@ -116,11 +113,31 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Us
 	_, err = service.DB.Exec(`
 		UPDATE users
 		SET password_hash = $2
-		WHERE id = $1`, user.ID, passwordHash)
+		WHERE id = $1`, pwReset.UserID, passwordHash)
 	if err != nil {
 		return nil, fmt.Errorf("update password: %w", err)
 	}
-	return user, nil
+	// Create will create a new session for the user provided. The session token
+	// will be returned as the Token field on the Session type, but only the hashed
+	// session token is stored in the database.
+	bytesPerToken := service.BytesPerToken
+	if bytesPerToken < MinBytesPerToken {
+		bytesPerToken = MinBytesPerToken
+	}
+	token, tokenHash, err = service.TokenManager.New(bytesPerToken)
+	if err != nil {
+		return nil, fmt.Errorf("create token: %w", err)
+	}
+	session := entity.Session{
+		UserID:    pwReset.UserID,
+		Token:     token,
+		TokenHash: tokenHash,
+	}
+	insertedSession, err := service.SessionRepository.Upsert(&session)
+	if err != nil {
+		return nil, fmt.Errorf("upsert session: %w", err)
+	}
+	return insertedSession, err
 }
 
 func (service *PasswordResetService) delete(id int) error {
