@@ -12,8 +12,6 @@ import (
 	"github.com/gorilla/csrf"
 )
 
-//var csrfKey = "gFvi45R4fy5xNBlnEeZtQbfAVCYEIAUX"
-
 func NewRouter(usersC Users, csrfKey string, csrfSecure bool) http.Handler {
 	umw := UserMiddleware{
 		SessionService: usersC.SessionService,
@@ -70,8 +68,6 @@ func NewRouterTest(usersC Users) http.Handler {
 		SessionService: usersC.SessionService,
 	}
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.StripSlashes)
 	r.Use(HTMLResponse)
 	r.Use(umw.SetUser)
 
