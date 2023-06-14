@@ -41,6 +41,6 @@ func loadEnvConfig() (config, error) {
 	if err != nil {
 		return cfg, err
 	}
-	cfg.Server.Address = os.Getenv("SERVER_ADDRESS")
+	cfg.Server.Address = os.Getenv("SERVER_PORT")
 	return cfg, nil
 }
