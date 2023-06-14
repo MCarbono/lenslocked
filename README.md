@@ -12,7 +12,7 @@
 <a id="About"></a> 
 ## 📃 About
 
-This project was developed based on a web development course by Jon Calhoun (https://www.usegolang.com/). It is a web-based image management system, similar to a blog. Although my code differs from what was taught in the course, which primarily focused on MVC code design and lacked testing, my goal with this project was to deepen my understanding of the Go language. I aimed to explore the language's resources, libraries, and practices related to two subjects: Clean architecture and domain-driven design.
+This project was developed based on a web development course by Jon Calhoun (https://www.usegolang.com/). It is a web-based image management system, similar to a blog. Although my code differs from what was taught in the course, which primarily focused on MVC code design and lacked testing, my goal with this project was to deepen my understanding of the Go language. I aimed to explore the language's resources, libraries, and practices related to two subjects: Clean architecture and domain-driven design. This project is still on progress, so there's a few features that are missing.
 
 ---
 <a id="Libs/Dependencies"></a> 
