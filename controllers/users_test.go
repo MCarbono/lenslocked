@@ -99,6 +99,11 @@ func TestCreate(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				body, _ := ioutil.ReadAll(resp.Body)
+				t.Errorf("Create request failed with error: %v", string(body))
+				return
+			}
 			token, err := readCookie(resp.Request, CookieSession)
 			if err != nil {
 				t.Fatal(err)
@@ -183,6 +188,11 @@ func TestProcessSignIn(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				body, _ := ioutil.ReadAll(resp.Body)
+				t.Errorf("ProcessSignIn request failed with error: %v", string(body))
+				return
+			}
 			token, err := readCookie(resp.Request, CookieSession)
 			if err != nil {
 				t.Fatal(err)
@@ -192,7 +202,7 @@ func TestProcessSignIn(t *testing.T) {
 				t.Fatal(err)
 			}
 			if diff := cmp.Diff(scenario.want, user, cmpopts.IgnoreFields(entity.User{}, "PasswordHash")); diff != "" {
-				t.Errorf("Create mismatch (-want +got):\n%v", diff)
+				t.Errorf("ProcessSignIn mismatch (-want +got):\n%v", diff)
 			}
 		})
 	}
@@ -264,6 +274,11 @@ func TestProcessSignOut(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				body, _ := ioutil.ReadAll(resp.Body)
+				t.Errorf("ProcessSignOut request failed with error: %v", string(body))
+				return
+			}
 			token, err := readCookie(resp.Request, CookieSession)
 			if err != nil {
 				t.Fatal(err)
@@ -273,9 +288,14 @@ func TestProcessSignOut(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				body, _ := ioutil.ReadAll(resp.Body)
+				t.Errorf("ProcessSignOut request failed with error: %v", string(body))
+				return
+			}
 			_, err = sessionService.User(token)
 			if diff := cmp.Diff(scenario.want, err.Error()); diff != "" {
-				t.Errorf("Create mismatch (-want +got):\n%v", diff)
+				t.Errorf("ProcessSignOut mismatch (-want +got):\n%v", diff)
 			}
 		})
 	}
