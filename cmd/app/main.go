@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"lenslocked/controllers"
+	"lenslocked/infra/controllers"
 	"lenslocked/infra/database"
 	"lenslocked/infra/database/migrations"
 	"lenslocked/infra/gateway"
