@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"lenslocked/domain/entity"
 	"lenslocked/domain/repository"
-	"lenslocked/gateway"
+	"lenslocked/infra/gateway"
 	"lenslocked/rand"
 	"lenslocked/token"
 	"net/url"
