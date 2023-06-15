@@ -3,9 +3,9 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"lenslocked/application/gateway"
 	"lenslocked/domain/entity"
 	"lenslocked/domain/repository"
-	"lenslocked/gateway"
 	"lenslocked/rand"
 	"lenslocked/token"
 	"net/url"
