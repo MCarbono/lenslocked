@@ -1,6 +1,7 @@
 package app
 
 import (
+	"lenslocked/infra/database"
 	"lenslocked/infra/gateway"
 	"os"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 )
 
 type config struct {
-	PSQL PostgresConfig
+	PSQL database.PostgresConfig
 	SMTP gateway.SMTPConfig
 	CSRF struct {
 		Key    string
@@ -26,7 +27,7 @@ func loadEnvConfig() (config, error) {
 	if err != nil {
 		return cfg, err
 	}
-	cfg.PSQL = DefaultPostgresConfig()
+	cfg.PSQL = database.DefaultPostgresConfig()
 	cfg.SMTP.Host = os.Getenv("SMTP_HOST")
 	portStr := os.Getenv("SMTP_PORT")
 	cfg.SMTP.Port, err = strconv.Atoi(portStr)

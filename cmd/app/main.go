@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"lenslocked/controllers"
+	"lenslocked/infra/database"
+	"lenslocked/infra/database/migrations"
 	"lenslocked/infra/gateway"
-	"lenslocked/migrations"
 	"lenslocked/services"
 	"lenslocked/token"
 
@@ -19,12 +20,12 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
-	db, err := Open(cfg.PSQL)
+	db, err := database.Open(cfg.PSQL)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	err = MigrateFS(db, migrations.FS, ".")
+	err = database.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
 		panic(err)
 	}
