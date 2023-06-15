@@ -1,7 +1,7 @@
 package app
 
 import (
-	"lenslocked/gateway"
+	"lenslocked/infra/gateway"
 	"os"
 	"strconv"
 

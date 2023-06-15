@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"lenslocked/domain/entity"
 	"lenslocked/domain/repository"
-	"lenslocked/infra/gateway"
+	"lenslocked/gateway"
 
 	"strings"
 

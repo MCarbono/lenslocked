@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"lenslocked/controllers"
-	"lenslocked/gateway"
+	"lenslocked/infra/gateway"
 	"lenslocked/migrations"
 	"lenslocked/services"
 	"lenslocked/token"
