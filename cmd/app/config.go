@@ -16,7 +16,7 @@ type config struct {
 		Secure bool
 	}
 	Server struct {
-		Address string
+		Port string
 	}
 }
 
@@ -41,6 +41,6 @@ func loadEnvConfig() (config, error) {
 	if err != nil {
 		return cfg, err
 	}
-	cfg.Server.Address = os.Getenv("SERVER_PORT")
+	cfg.Server.Port = os.Getenv("SERVER_PORT")
 	return cfg, nil
 }

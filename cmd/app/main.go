@@ -57,6 +57,6 @@ func Start() {
 		SessionService:       sessionService,
 		PasswordResetService: pwResetService,
 	}
-	fmt.Printf("Starting the server on port %v\n", cfg.Server.Address)
-	log.Fatal(http.ListenAndServe(":"+cfg.Server.Address, controllers.NewRouter(usersC, cfg.CSRF.Key, cfg.CSRF.Secure)))
+	fmt.Printf("Starting the server on port %v\n", cfg.Server.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Server.Port, controllers.NewRouter(usersC, cfg.CSRF.Key, cfg.CSRF.Secure)))
 }
