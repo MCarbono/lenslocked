@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"lenslocked/domain/entity"
 	"lenslocked/gen/mock"
-	repository "lenslocked/repository/sqlite"
+	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/token"
 	"os/exec"
 	"testing"

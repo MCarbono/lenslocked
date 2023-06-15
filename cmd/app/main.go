@@ -11,7 +11,7 @@ import (
 	"lenslocked/services"
 	"lenslocked/token"
 
-	repository "lenslocked/repository/postgres"
+	repository "lenslocked/infra/repository/postgres"
 )
 
 func Start() {
