@@ -3,8 +3,8 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
-	"lenslocked/domain/repository"
 	"lenslocked/token"
 )
 
