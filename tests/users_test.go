@@ -7,7 +7,7 @@ import (
 	"lenslocked/cookie"
 	"lenslocked/domain/entity"
 	"lenslocked/infra/controllers"
-	"lenslocked/infra/http/router"
+	"lenslocked/infra/http/middleware"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/rand"
 	"lenslocked/services"
@@ -450,11 +450,11 @@ func createDatabaseTest() (*sql.DB, error) {
 }
 
 func NewRouterTest(usersC controllers.Users) http.Handler {
-	umw := router.UserMiddleware{
+	umw := middleware.UserMiddleware{
 		SessionService: usersC.SessionService,
 	}
 	r := chi.NewRouter()
-	r.Use(router.HTMLResponse)
+	r.Use(middleware.HTMLResponse)
 	r.Use(umw.SetUser)
 
 	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))

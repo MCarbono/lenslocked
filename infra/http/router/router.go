@@ -1,29 +1,27 @@
 package router
 
 import (
-	"lenslocked/context"
-	"lenslocked/cookie"
 	"lenslocked/infra/controllers"
-	"lenslocked/services"
+	"lenslocked/infra/http/middleware"
 	"lenslocked/templates"
 	"lenslocked/views"
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	chiMiddleware "github.com/go-chi/chi/middleware"
 	"github.com/gorilla/csrf"
 )
 
 func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler {
-	umw := UserMiddleware{
+	umw := middleware.UserMiddleware{
 		SessionService: usersC.SessionService,
 	}
 
 	csrfMw := csrf.Protect([]byte(csrfKey), csrf.Secure(csrfSecure))
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.StripSlashes)
-	r.Use(HTMLResponse)
+	r.Use(chiMiddleware.Logger)
+	r.Use(chiMiddleware.StripSlashes)
+	r.Use(middleware.HTMLResponse)
 	r.Use(csrfMw)
 	r.Use(umw.SetUser)
 
@@ -63,46 +61,4 @@ func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler
 	r.Get("/reset-pw", usersC.ResetPassword)
 	r.Post("/reset-pw", usersC.ProcessResetPassword)
 	return r
-}
-
-//middlewares
-func HTMLResponse(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-type", "text/html; charset=utf-8")
-		next.ServeHTTP(w, r)
-	})
-}
-
-type UserMiddleware struct {
-	SessionService *services.SessionService
-}
-
-func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token, err := cookie.ReadCookie(r, cookie.CookieSession)
-		if err != nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-		user, err := umw.SessionService.User(token)
-		if err != nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-		ctx := r.Context()
-		ctx = context.WithUser(ctx, user)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (umw UserMiddleware) RequireUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := context.User(r.Context())
-		if user == nil {
-			http.Redirect(w, r, "/signin", http.StatusFound)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
 }
