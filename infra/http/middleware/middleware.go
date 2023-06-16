@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"lenslocked/context"
-	"lenslocked/cookie"
+	"lenslocked/infra/http/cookie"
 	"lenslocked/services"
 	"net/http"
 )
