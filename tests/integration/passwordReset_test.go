@@ -1,4 +1,4 @@
-package tests
+package integration
 
 import (
 	"lenslocked/domain/entity"
