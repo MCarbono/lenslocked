@@ -28,12 +28,8 @@ func (ss *SessionService) Create(userID int) (*entity.Session, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
-	session := entity.Session{
-		UserID:    userID,
-		Token:     token,
-		TokenHash: tokenHash,
-	}
-	insertedSession, err := ss.SessionRepository.Upsert(&session)
+	session := entity.NewSession(userID, token, tokenHash)
+	insertedSession, err := ss.SessionRepository.Upsert(session)
 	if err != nil {
 		return nil, err
 	}
