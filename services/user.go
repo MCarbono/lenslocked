@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	//DefaultSender is the default emai laddress to send emails from.
+	//DefaultSender is the default email address to send emails from.
 	DefaultSender = "support@lenslocked.com"
 )
 
@@ -34,12 +34,8 @@ func (us *UserService) Create(email, password string) (*entity.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
-	user := entity.User{
-		ID:           ID,
-		Email:        email,
-		PasswordHash: passwordHash,
-	}
-	return &user, nil
+	user := entity.NewUser(ID, email, passwordHash)
+	return user, nil
 }
 
 func (us *UserService) Authenticate(email, password string) (*entity.User, error) {
