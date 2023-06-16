@@ -1,10 +1,10 @@
-package services
+package tests
 
 import (
-	"database/sql"
 	"lenslocked/domain/entity"
 	"lenslocked/gen/mock"
 	repository "lenslocked/infra/repository/sqlite"
+	"lenslocked/services"
 	"lenslocked/token"
 	"os/exec"
 	"testing"
@@ -15,7 +15,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreatePasswordReset(t *testing.T) {
 	t.Cleanup(func() {
 		cmd := exec.Command("rm", "../lenslocked_test.db")
 		err := cmd.Run()
@@ -30,10 +30,10 @@ func TestCreate(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
-	var userService = &UserService{
+	var userService = &services.UserService{
 		UserRepository: userRepository,
 	}
-	var passwordResetService = &PasswordResetService{
+	var passwordResetService = &services.PasswordResetService{
 		TokenManager:   token.ManagerImpl{},
 		UserRepository: userRepository,
 		PasswordReset:  passwordResetRepository,
@@ -92,36 +92,4 @@ func TestCreate(t *testing.T) {
 			}
 		})
 	}
-}
-
-func createDatabaseTest() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "../lenslocked_test.db")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS users;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS sessions;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS password_resets;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT UNIQUE NOT NULL REFERENCES users (id) ON DELETE CASCADE, token_hash TEXT UNIQUE NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT UNIQUE NOT NULL REFERENCES users (id) ON DELETE CASCADE, token_hash TEXT UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
 }
