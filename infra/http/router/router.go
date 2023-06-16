@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/csrf"
 )
 
-func NewRouter(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler {
+func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler {
 	umw := UserMiddleware{
 		SessionService: usersC.SessionService,
 	}
