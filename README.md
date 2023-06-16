@@ -73,5 +73,5 @@ Inside the root folder, run one of the commands below:
 
 ```bash
     # Go command
-    $ go test ./... -v
+    $ go test ./tests -v
 ```
