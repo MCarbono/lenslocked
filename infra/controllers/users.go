@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"lenslocked/context"
+	"lenslocked/cookie"
 	"lenslocked/services"
 	"net/http"
 )
@@ -50,7 +51,7 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	setCookie(w, CookieSession, session.Token)
+	cookie.SetCookie(w, cookie.CookieSession, session.Token)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
@@ -81,7 +82,7 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	setCookie(w, CookieSession, session.Token)
+	cookie.SetCookie(w, cookie.CookieSession, session.Token)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
@@ -108,7 +109,7 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
-	token, err := readCookie(r, CookieSession)
+	token, err := cookie.ReadCookie(r, cookie.CookieSession)
 	if err != nil {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
@@ -118,7 +119,7 @@ func (u Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	deleteCookie(w, CookieSession)
+	cookie.DeleteCookie(w, cookie.CookieSession)
 	http.Redirect(w, r, "/signin", http.StatusFound)
 }
 
@@ -175,6 +176,6 @@ func (u Users) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
 	// 	http.Redirect(w, r, "/signin", http.StatusFound)
 	// 	return
 	// }
-	setCookie(w, CookieSession, session.Token)
+	cookie.SetCookie(w, cookie.CookieSession, session.Token)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
