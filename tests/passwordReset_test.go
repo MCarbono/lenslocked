@@ -5,6 +5,7 @@ import (
 	"lenslocked/gen/mock"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
+	"lenslocked/tests/testinfra"
 	"lenslocked/token"
 	"os/exec"
 	"testing"
@@ -23,7 +24,7 @@ func TestCreatePasswordReset(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	db, err := createDatabaseTest()
+	db, err := testinfra.CreateDatabaseTest()
 	if err != nil {
 		t.Fatal(err)
 	}

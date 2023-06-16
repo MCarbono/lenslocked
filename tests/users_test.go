@@ -1,19 +1,16 @@
 package tests
 
 import (
-	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"lenslocked/domain/entity"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
-	"lenslocked/infra/http/middleware"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/rand"
 	"lenslocked/services"
-	"lenslocked/templates"
+	"lenslocked/tests/testinfra"
 	"lenslocked/token"
-	"lenslocked/views"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -23,107 +20,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-chi/chi"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-func TestCreate(t *testing.T) {
-	t.Cleanup(func() {
-		cmd := exec.Command("rm", "../lenslocked_test.db")
-		err := cmd.Run()
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	db, err := createDatabaseTest()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	var userRepository = repository.NewUserRepositorySQLite(db)
-	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-	}
-	var sessionService = &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      token.ManagerImpl{},
-	}
-	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
-	r := NewRouterTest(userController)
-	ts := httptest.NewServer(r)
-	defer ts.Close()
-	type args struct {
-		email    string
-		password string
-	}
-	type test struct {
-		name string
-		args args
-		want *entity.User
-	}
-	tests := []test{
-		{
-			name: "Should create a new user",
-			args: args{
-				email:    "teste@email.com",
-				password: "password",
-			},
-			want: &entity.User{
-				ID:    1,
-				Email: "teste@email.com",
-			},
-		},
-		{
-			name: "Should create a new user with email in uppercase",
-			args: args{
-				email:    "TESTE@EMAIL.COM",
-				password: "password",
-			},
-			want: &entity.User{
-				ID:    2,
-				Email: "teste@email.com",
-			},
-		},
-	}
-	for _, scenario := range tests {
-		t.Run(scenario.name, func(t *testing.T) {
-			defer db.Exec("DELETE from users;")
-			defer db.Exec("DELETE from sessions;")
-			data := url.Values{}
-			data.Add("email", scenario.args.email)
-			data.Add("password", scenario.args.password)
-			jar, _ := cookiejar.New(nil)
-			client := ts.Client()
-			client.Jar = jar
-			resp, err := client.Post(fmt.Sprintf("%s/users", ts.URL), "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				body, _ := ioutil.ReadAll(resp.Body)
-				t.Errorf("Create request failed with error: %v", string(body))
-				return
-			}
-			token, err := cookie.ReadCookie(resp.Request, cookie.CookieSession)
-			if err != nil {
-				t.Fatal(err)
-			}
-			user, err := sessionService.User(token)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if diff := cmp.Diff(scenario.want, user, cmpopts.IgnoreFields(entity.User{}, "PasswordHash")); diff != "" {
-				t.Errorf("Create mismatch (-want +got):\n%v", diff)
-			}
-		})
-	}
-}
 
 func TestProcessSignIn(t *testing.T) {
 	t.Cleanup(func() {
@@ -133,7 +33,7 @@ func TestProcessSignIn(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	db, err := createDatabaseTest()
+	db, err := testinfra.CreateDatabaseTest()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +54,7 @@ func TestProcessSignIn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController)
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 	type args struct {
@@ -222,7 +122,7 @@ func TestProcessSignOut(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	db, err := createDatabaseTest()
+	db, err := testinfra.CreateDatabaseTest()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -243,7 +143,7 @@ func TestProcessSignOut(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController)
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 	type args struct {
@@ -315,7 +215,7 @@ func TestProcessResetPassword(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	db, err := createDatabaseTest()
+	db, err := testinfra.CreateDatabaseTest()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -340,7 +240,7 @@ func TestProcessResetPassword(t *testing.T) {
 		SessionRepository: sessionRepository,
 	}
 	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService, UserService: userService}
-	r := NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController)
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
@@ -415,83 +315,4 @@ func TestProcessResetPassword(t *testing.T) {
 			}
 		})
 	}
-}
-
-func createDatabaseTest() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "../lenslocked_test.db")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS users;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS sessions;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("DROP TABLE IF EXISTS password_resets;")
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT UNIQUE NOT NULL REFERENCES users (id) ON DELETE CASCADE, token_hash TEXT UNIQUE NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT UNIQUE NOT NULL REFERENCES users (id) ON DELETE CASCADE, token_hash TEXT UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL);`)
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
-func NewRouterTest(usersC controllers.Users) http.Handler {
-	umw := middleware.UserMiddleware{
-		SessionService: usersC.SessionService,
-	}
-	r := chi.NewRouter()
-	r.Use(middleware.HTMLResponse)
-	r.Use(umw.SetUser)
-
-	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))
-	r.Get("/", controllers.StaticHandler(tpl))
-
-	tpl = views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))
-	r.Get("/faq", controllers.FAQ(tpl))
-
-	tpl = views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))
-	r.Get("/contact", controllers.StaticHandler(tpl))
-
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "Page not found", http.StatusNotFound)
-	})
-
-	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
-	usersC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "signin.gohtml", "tailwind.gohtml"))
-	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
-	usersC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
-	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
-	usersC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
-
-	r.Get("/users/new", usersC.New)
-	r.Post("/users", usersC.Create)
-	r.Get("/signin", usersC.SignIn)
-	r.Post("/signin", usersC.ProcessSignIn)
-	r.Post("/signout", usersC.ProcessSignOut)
-
-	r.Route("/users/me", func(r chi.Router) {
-		r.Use(umw.RequireUser)
-		r.Get("/", usersC.CurrentUser)
-	})
-
-	r.Get("/forgot-pw", usersC.ForgotPassword)
-	r.Post("/forgot-pw", usersC.ProcessForgotPassword)
-
-	r.Get("/reset-pw", usersC.ResetPassword)
-	r.Post("/reset-pw", usersC.ProcessResetPassword)
-	return r
 }
