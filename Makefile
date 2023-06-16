@@ -3,8 +3,8 @@ default: run
 run:
 	go run main.go
 
-tests:
-	go test ./... -v
+test:
+	go test ./tests -v
 
 gen:
 	go generate ./...
