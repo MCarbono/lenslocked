@@ -30,6 +30,7 @@ This project was developed based on a web development course by Jon Calhoun (htt
 | chi               |  http router  lib | https://github.com/go-chi/chi                   | go get github.com/go-chi/chi   |
 | godotenv             | .env vars manager              | github.com/joho/godotenv             | go get github.com/joho/godotenv    | 
 | gorilla/csrf         | middleware library that provides cross-site request forgery (CSRF)protection             | github.com/gorilla/csrf               | go get github.com/gorilla/csrf               | 
+| google/uuid                 | uuid generator                   | github.com/google/uuid                        | go get github.com/google/uuid  |
 
 ---
 
