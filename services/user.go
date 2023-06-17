@@ -6,6 +6,7 @@ import (
 	"lenslocked/application/gateway"
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 
 	"strings"
 
@@ -21,6 +22,7 @@ type UserService struct {
 	DB             *sql.DB
 	UserRepository repository.UserRepository
 	EmailGateway   gateway.EmailProvider
+	idGenerator.IDGenerator
 }
 
 func (us *UserService) Create(email, password string) (*entity.User, error) {

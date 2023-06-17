@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/database"
 	"lenslocked/infra/database/migrations"
@@ -34,12 +35,14 @@ func Start() {
 	userService := &services.UserService{
 		UserRepository: repository.NewUserRepositoryPostgres(db),
 		DB:             db,
+		IDGenerator:    idGenerator.New(),
 	}
 	sessionService := &services.SessionService{
 		DB:                db,
 		SessionRepository: repository.NewSessionRepositoryPostgres(db),
 		UserRepository:    repository.NewUserRepositoryPostgres(db),
 		TokenManager:      token.ManagerImpl{},
+		IDGenerator:       idGenerator.New(),
 	}
 	pwResetService := &services.PasswordResetService{
 		DB:             db,
@@ -53,6 +56,7 @@ func Start() {
 			Password: cfg.SMTP.Password,
 		}),
 		SessionRepository: repository.NewSessionRepositoryPostgres(db),
+		IDGenerator:       idGenerator.New(),
 	}
 	usersC := controllers.Users{
 		UserService:          userService,

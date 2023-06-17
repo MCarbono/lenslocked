@@ -6,6 +6,7 @@ import (
 	"lenslocked/application/gateway"
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 	"lenslocked/rand"
 	"lenslocked/token"
 	"net/url"
@@ -37,6 +38,7 @@ type PasswordResetService struct {
 	PasswordReset     repository.PasswordResetRepository
 	EmailGateway      gateway.EmailProvider
 	SessionRepository repository.SessionRepository
+	idGenerator.IDGenerator
 }
 
 func (service *PasswordResetService) Create(email, resetPasswordURL string) (*entity.PasswordReset, error) {

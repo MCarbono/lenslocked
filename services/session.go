@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 	"lenslocked/token"
 )
 
@@ -14,6 +15,7 @@ type SessionService struct {
 	UserRepository    repository.UserRepository
 	TokenManager      token.Manager
 	BytesPerToken     int
+	idGenerator.IDGenerator
 }
 
 // Create will create a new session for the user provided. The session token
