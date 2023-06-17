@@ -19,3 +19,7 @@ func NewPasswordReset(userID int, token, tokenHash string, duration time.Duratio
 		ExpiresAt: time.Now().Add(duration),
 	}
 }
+
+func (pw *PasswordReset) IsExpired() bool {
+	return time.Now().After(pw.ExpiresAt)
+}

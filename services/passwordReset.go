@@ -98,7 +98,7 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 	if err != nil {
 		return nil, fmt.Errorf("consume: %w", err)
 	}
-	if time.Now().After(pwReset.ExpiresAt) {
+	if pwReset.IsExpired() {
 		return nil, fmt.Errorf("token expired: %v", token)
 	}
 	err = service.PasswordReset.Delete(pwReset)
