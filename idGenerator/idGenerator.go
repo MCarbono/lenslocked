@@ -12,6 +12,6 @@ func (i *IDGeneratorImpl) Generate() string {
 	return uuid.New().String()
 }
 
-func NewIDGenerator() *IDGeneratorImpl {
+func New() *IDGeneratorImpl {
 	return &IDGeneratorImpl{}
 }
