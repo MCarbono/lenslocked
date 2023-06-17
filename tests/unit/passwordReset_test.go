@@ -8,8 +8,8 @@ import (
 
 func TestPasswordReset_IsExpired(t *testing.T) {
 	type fields struct {
-		ID        int
-		UserID    int
+		ID        string
+		UserID    string
 		Token     string
 		TokenHash string
 		Duration  time.Duration
@@ -25,8 +25,9 @@ func TestPasswordReset_IsExpired(t *testing.T) {
 		{
 			name: "The password reset should not be expired",
 			fields: fields{
-				ID:        1,
-				UserID:    2,
+				ID:        "fakeID",
+				UserID:    "fakeUserID",
+				Token:     "fakeToken",
 				TokenHash: "tokenHashFake123",
 				Duration:  1 * time.Hour,
 			},
@@ -35,8 +36,9 @@ func TestPasswordReset_IsExpired(t *testing.T) {
 		{
 			name: "The password reset should  be expired",
 			fields: fields{
-				ID:        1,
-				UserID:    2,
+				ID:        "fakeID",
+				UserID:    "fakeUserID",
+				Token:     "fakeToken",
 				TokenHash: "tokenHashFake123",
 				Duration:  -1 * time.Hour,
 			},
@@ -45,7 +47,7 @@ func TestPasswordReset_IsExpired(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pw := entity.NewPasswordReset(tt.fields.UserID, tt.fields.Token, tt.fields.TokenHash, tt.fields.Duration)
+			pw := entity.NewPasswordReset(tt.fields.ID, tt.fields.UserID, tt.fields.Token, tt.fields.TokenHash, tt.fields.Duration)
 			if got := pw.IsExpired(); got != tt.want {
 				t.Errorf("PasswordReset.IsExpired() = %v, want %v", got, tt.want)
 			}

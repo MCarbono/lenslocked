@@ -16,14 +16,9 @@ func NewUserRepositoryPostgres(db *sql.DB) *UserRepositoryPostgres {
 	}
 }
 
-func (p *UserRepositoryPostgres) Create(email, password string) (int, error) {
-	row := p.DB.QueryRow(`INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id`, email, password)
-	var id int
-	err := row.Scan(&id)
-	if err != nil {
-		return 0, fmt.Errorf("create user: %w", err)
-	}
-	return id, nil
+func (p *UserRepositoryPostgres) Create(user *entity.User) error {
+	_, err := p.DB.Exec(`INSERT INTO users (id, email, password_hash) VALUES ($1, $2, $3) `, user.ID, user.Email, user.PasswordHash)
+	return err
 }
 
 func (p *UserRepositoryPostgres) FindByEmail(email string) (*entity.User, error) {
@@ -35,7 +30,7 @@ func (p *UserRepositoryPostgres) FindByEmail(email string) (*entity.User, error)
 	return &user, nil
 }
 
-func (p *UserRepositoryPostgres) FindByID(ID int) (*entity.User, error) {
+func (p *UserRepositoryPostgres) FindByID(ID string) (*entity.User, error) {
 	var user entity.User
 	row := p.DB.QueryRow(`SELECT * FROM users WHERE id = $1`, ID)
 	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash); err != nil {
@@ -57,7 +52,7 @@ func (p *UserRepositoryPostgres) FindByTokenHash(token string) (*entity.User, er
 	return &user, nil
 }
 
-func (p *UserRepositoryPostgres) UpdatePasswordHash(id int, passwordHash string) error {
+func (p *UserRepositoryPostgres) UpdatePasswordHash(id string, passwordHash string) error {
 	_, err := p.DB.Exec(`
 		UPDATE users
 		SET password_hash = $2

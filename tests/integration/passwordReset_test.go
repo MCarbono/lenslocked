@@ -3,6 +3,7 @@ package integration
 import (
 	"lenslocked/domain/entity"
 	"lenslocked/gen/mock"
+	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
 	"lenslocked/tests/testinfra"
@@ -33,11 +34,13 @@ func TestCreatePasswordReset(t *testing.T) {
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
+		IDGenerator:    idGenerator.New(),
 	}
 	var passwordResetService = &services.PasswordResetService{
 		TokenManager:   token.ManagerImpl{},
 		UserRepository: userRepository,
 		PasswordReset:  passwordResetRepository,
+		IDGenerator:    idGenerator.New(),
 	}
 
 	type mockFields struct {

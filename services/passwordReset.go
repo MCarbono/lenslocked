@@ -62,12 +62,12 @@ func (service *PasswordResetService) Create(email, resetPasswordURL string) (*en
 	if duration == 0 {
 		duration = DefaultResetDuration
 	}
-	passwordReset := entity.NewPasswordReset(user.ID, token, tokenHash, duration)
-	id, err := service.PasswordReset.Create(passwordReset)
+	passwordReset := entity.NewPasswordReset(service.Generate(), user.ID, token, tokenHash, duration)
+	err = service.PasswordReset.Create(passwordReset)
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
-	passwordReset.ID = id
+
 	vals := url.Values{
 		"token": {passwordReset.Token},
 	}
@@ -128,7 +128,7 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 		return nil, fmt.Errorf("create token: %w", err)
 	}
 
-	insertedSession, err := service.SessionRepository.Upsert(entity.NewSession(pwReset.UserID, token, tokenHash))
+	insertedSession, err := service.SessionRepository.Upsert(entity.NewSession(service.Generate(), pwReset.UserID, token, tokenHash))
 	if err != nil {
 		return nil, fmt.Errorf("upsert session: %w", err)
 	}

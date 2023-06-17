@@ -21,7 +21,7 @@ type SessionService struct {
 // Create will create a new session for the user provided. The session token
 // will be returned as the Token field on the Session type, but only the hashed
 // session token is stored in the database.
-func (ss *SessionService) Create(userID int) (*entity.Session, error) {
+func (ss *SessionService) Create(userID string) (*entity.Session, error) {
 	bytesPerToken := ss.BytesPerToken
 	if bytesPerToken < MinBytesPerToken {
 		bytesPerToken = MinBytesPerToken
@@ -30,7 +30,7 @@ func (ss *SessionService) Create(userID int) (*entity.Session, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
-	session := entity.NewSession(userID, token, tokenHash)
+	session := entity.NewSession(ss.Generate(), userID, token, tokenHash)
 	insertedSession, err := ss.SessionRepository.Upsert(session)
 	if err != nil {
 		return nil, err

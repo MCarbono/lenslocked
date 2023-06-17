@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
@@ -38,12 +39,14 @@ func TestProcessSignOut(t *testing.T) {
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
+		IDGenerator:    idGenerator.New(),
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 		TokenManager:      token.ManagerImpl{},
+		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
 	_, err = userService.Create("teste@email.com", "password")

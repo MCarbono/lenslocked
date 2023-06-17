@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/rand"
@@ -40,12 +41,14 @@ func TestProcessResetPassword(t *testing.T) {
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
+		IDGenerator:    idGenerator.New(),
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 		TokenManager:      token.ManagerImpl{},
+		IDGenerator:       idGenerator.New(),
 	}
 
 	var passwordResetService = &services.PasswordResetService{
@@ -53,6 +56,7 @@ func TestProcessResetPassword(t *testing.T) {
 		PasswordReset:     passwordResetRepository,
 		UserRepository:    userRepository,
 		SessionRepository: sessionRepository,
+		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService, UserService: userService}
 	r := testinfra.NewRouterTest(userController)
@@ -90,8 +94,8 @@ func TestProcessResetPassword(t *testing.T) {
 				t.Fatal(err)
 			}
 			tokenHash := passwordResetService.TokenManager.Hash(token)
-			passwordReset := entity.NewPasswordReset(user.ID, token, tokenHash, 1*time.Hour)
-			passwordResetID, err := passwordResetService.PasswordReset.Create(passwordReset)
+			passwordReset := entity.NewPasswordReset(passwordResetService.Generate(), user.ID, token, tokenHash, 1*time.Hour)
+			err = passwordResetService.PasswordReset.Create(passwordReset)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -119,7 +123,7 @@ func TestProcessResetPassword(t *testing.T) {
 				t.Errorf("ProcessForgotPassword failed. User password should be updated")
 				return
 			}
-			passwordResetDeleted, err := passwordResetRepository.FindByID(passwordResetID)
+			passwordResetDeleted, err := passwordResetRepository.FindByID(passwordReset.ID)
 			if passwordResetDeleted != nil && err == nil {
 				t.Errorf("ProcessForgotPassword failed. Entity PasswordReset should be deleted, but it's stored in the database. %v", passwordResetDeleted)
 				return

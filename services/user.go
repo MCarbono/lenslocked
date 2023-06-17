@@ -32,11 +32,12 @@ func (us *UserService) Create(email, password string) (*entity.User, error) {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 	passwordHash := string(hashedBytes)
-	ID, err := us.UserRepository.Create(email, passwordHash)
+	user := entity.NewUser(us.IDGenerator.Generate(), email, passwordHash)
+	err = us.UserRepository.Create(user)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
-	user := entity.NewUser(ID, email, passwordHash)
+
 	return user, nil
 }
 

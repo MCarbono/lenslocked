@@ -16,16 +16,9 @@ func NewUserRepositorySQLite(db *sql.DB) *UserRepositorySQLite {
 	}
 }
 
-func (p *UserRepositorySQLite) Create(email, password string) (int, error) {
-	row, err := p.DB.Exec(`INSERT INTO users (email, password_hash) VALUES (?, ?)`, email, password)
-	if err != nil {
-		return 0, err
-	}
-	id, err := row.LastInsertId()
-	if err != nil {
-		return 0, nil
-	}
-	return int(id), nil
+func (p *UserRepositorySQLite) Create(user *entity.User) error {
+	_, err := p.DB.Exec(`INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)`, user.ID, user.Email, user.PasswordHash)
+	return err
 }
 
 func (p *UserRepositorySQLite) FindByEmail(email string) (*entity.User, error) {
@@ -37,7 +30,7 @@ func (p *UserRepositorySQLite) FindByEmail(email string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (p *UserRepositorySQLite) FindByID(ID int) (*entity.User, error) {
+func (p *UserRepositorySQLite) FindByID(ID string) (*entity.User, error) {
 	var user entity.User
 	row := p.DB.QueryRow(`SELECT * FROM users WHERE id = ?`, ID)
 	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash); err != nil {
@@ -60,7 +53,7 @@ func (p *UserRepositorySQLite) FindByTokenHash(token string) (*entity.User, erro
 	return &user, nil
 }
 
-func (p *UserRepositorySQLite) UpdatePasswordHash(id int, passwordHash string) error {
+func (p *UserRepositorySQLite) UpdatePasswordHash(id string, passwordHash string) error {
 	_, err := p.DB.Exec(`
 		UPDATE users
 		SET password_hash = ?

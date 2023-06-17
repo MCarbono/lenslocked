@@ -17,11 +17,10 @@ func NewSessionRepositoryPostgres(db *sql.DB) *SessionRepositoryPostgres {
 }
 
 func (s *SessionRepositoryPostgres) Upsert(session *entity.Session) (*entity.Session, error) {
-	row := s.DB.QueryRow(`
-		INSERT INTO sessions (user_id, token_hash)
-		VALUES ($1, $2) ON CONFLICT (user_id) 
-		DO UPDATE SET token_hash = $2 RETURNING id;`, session.UserID, session.TokenHash)
-	err := row.Scan(&session.ID)
+	_, err := s.DB.Exec(`
+		INSERT INTO sessions (id, user_id, token_hash)
+		VALUES ($1, $2, $3) ON CONFLICT (user_id) 
+		DO UPDATE SET token_hash = $3;`, session.ID, session.UserID, session.TokenHash)
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}

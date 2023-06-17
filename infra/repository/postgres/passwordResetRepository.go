@@ -16,21 +16,15 @@ func NewPasswordResetPostgres(db *sql.DB) *PasswordResetPostgres {
 	}
 }
 
-func (p *PasswordResetPostgres) Create(passwordReset *entity.PasswordReset) (int, error) {
-	row := p.DB.QueryRow(`INSERT INTO password_resets (user_id, token_hash, expires_at)
-		values ($1, $2, $3) ON CONFLICT (user_id) DO
+func (p *PasswordResetPostgres) Create(passwordReset *entity.PasswordReset) error {
+	_, err := p.DB.Exec(`INSERT INTO password_resets (id, user_id, token_hash, expires_at)
+		values ($1, $2, $3, $4) ON CONFLICT (user_id) DO
 		UPDATE
-		SET token_hash = $2, expires_at = $3
-		RETURNING id;`, passwordReset.UserID, passwordReset.TokenHash, passwordReset.ExpiresAt)
-	var id int
-	err := row.Scan(&id)
-	if err != nil {
-		return 0, fmt.Errorf("create user: %w", err)
-	}
-	return id, nil
+		SET token_hash = $3, expires_at = $4;`, passwordReset.ID, passwordReset.UserID, passwordReset.TokenHash, passwordReset.ExpiresAt)
+	return err
 }
 
-func (p *PasswordResetPostgres) FindByID(id int) (*entity.PasswordReset, error) {
+func (p *PasswordResetPostgres) FindByID(id string) (*entity.PasswordReset, error) {
 	var passwordResets entity.PasswordReset
 	row := p.DB.QueryRow(`SELECT * FROM password_resets WHERE id = $1`, id)
 	if err := row.Scan(&passwordResets.ID, &passwordResets.UserID, &passwordResets.TokenHash, &passwordResets.ExpiresAt); err != nil {

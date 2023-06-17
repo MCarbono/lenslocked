@@ -28,7 +28,7 @@ func (s *SessionRepositorySQLite) Upsert(session *entity.Session) (*entity.Sessi
 	if updatedRow == 0 {
 		//if no session exists, we will get ErrNoRows. That means we need to
 		//create a session object for that user
-		row, err = s.DB.Exec(`INSERT INTO sessions (user_id, token_hash) VALUES (?, ?)`, session.UserID, session.TokenHash)
+		_, err = s.DB.Exec(`INSERT INTO sessions (id, user_id, token_hash) VALUES (?, ?, ?)`, session.ID, session.UserID, session.TokenHash)
 	}
 	//If the err was not sql.ErrNoRows, we need to check to see if it was any
 	//other error. If it was sql.ErrNoRows it will be overwritten inside the if
@@ -36,11 +36,6 @@ func (s *SessionRepositorySQLite) Upsert(session *entity.Session) (*entity.Sessi
 	if err != nil {
 		return nil, fmt.Errorf("upsert: %w", err)
 	}
-	id, err := row.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	session.ID = int(id)
 	return session, nil
 }
 

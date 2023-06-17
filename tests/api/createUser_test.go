@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
+	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/token"
 	"net/http"
@@ -24,7 +26,6 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-//testinfra
 func TestCreateUser(t *testing.T) {
 	t.Cleanup(func() {
 		cmd := exec.Command("rm", "../lenslocked_test.db")
@@ -42,12 +43,14 @@ func TestCreateUser(t *testing.T) {
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
+		IDGenerator:    fakes.NewIDGeneratorFake(),
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 		TokenManager:      token.ManagerImpl{},
+		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
 	r := testinfra.NewRouterTest(userController)
@@ -70,7 +73,7 @@ func TestCreateUser(t *testing.T) {
 				password: "password",
 			},
 			want: &entity.User{
-				ID:    1,
+				ID:    "fakeUUID",
 				Email: "teste@email.com",
 			},
 		},
@@ -81,7 +84,7 @@ func TestCreateUser(t *testing.T) {
 				password: "password",
 			},
 			want: &entity.User{
-				ID:    2,
+				ID:    "fakeUUID",
 				Email: "teste@email.com",
 			},
 		},

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"lenslocked/domain/entity"
+	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
+	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/token"
 	"net/http"
@@ -40,12 +42,14 @@ func TestProcessSignIn(t *testing.T) {
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
+		IDGenerator:    fakes.NewIDGeneratorFake(),
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 		TokenManager:      token.ManagerImpl{},
+		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
 	_, err = userService.Create("teste@email.com", "password")
@@ -72,7 +76,7 @@ func TestProcessSignIn(t *testing.T) {
 				password: "password",
 			},
 			want: &entity.User{
-				ID:    1,
+				ID:    "fakeUUID",
 				Email: "teste@email.com",
 			},
 		},
