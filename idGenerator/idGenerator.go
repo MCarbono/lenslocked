@@ -3,11 +3,15 @@ package idGenerator
 import "github.com/google/uuid"
 
 type IDGenerator interface {
-	New() string
+	Generate() string
 }
 
 type IDGeneratorImpl struct{}
 
-func (i *IDGeneratorImpl) New() string {
+func (i *IDGeneratorImpl) Generate() string {
 	return uuid.New().String()
+}
+
+func NewIDGenerator() *IDGeneratorImpl {
+	return &IDGeneratorImpl{}
 }
