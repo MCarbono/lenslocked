@@ -25,20 +25,24 @@ type UserService struct {
 	idGenerator.IDGenerator
 }
 
-func (us *UserService) Create(email, password string) (*entity.User, error) {
-	email = strings.ToLower(email)
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func (us *UserService) Create(input *CreateUserInput) (*entity.User, error) {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 	passwordHash := string(hashedBytes)
-	user := entity.NewUser(us.IDGenerator.Generate(), email, passwordHash)
+	user := entity.NewUser(us.IDGenerator.Generate(), input.Email, passwordHash)
 	err = us.UserRepository.Create(user)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 
 	return user, nil
+}
+
+type CreateUserInput struct {
+	Email    string
+	Password string
 }
 
 func (us *UserService) Authenticate(email, password string) (*entity.User, error) {
