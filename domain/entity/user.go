@@ -1,5 +1,7 @@
 package entity
 
+import "strings"
+
 type User struct {
 	ID           string
 	Email        string
@@ -9,7 +11,7 @@ type User struct {
 func NewUser(ID, email, passwordHash string) *User {
 	return &User{
 		ID:           ID,
-		Email:        email,
+		Email:        strings.ToLower(email),
 		PasswordHash: passwordHash,
 	}
 }
