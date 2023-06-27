@@ -35,15 +35,16 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse form submission.", http.StatusBadRequest)
 		return
 	}
-	email := r.PostForm.Get("email")
-	password := r.PostForm.Get("password")
-	user, err := u.UserService.Create(email, password)
-
+	input := &services.CreateUserInput{
+		Email:    r.PostForm.Get("email"),
+		Password: r.PostForm.Get("password"),
+	}
+	user, err := u.UserService.Create(input)
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		u.Templates.New.Execute(w, r, input, err)
 		return
 	}
+	//Refact this. Return a Session from the Create User
 	session, err := u.SessionService.Create(user.ID)
 	if err != nil {
 		fmt.Println(err)

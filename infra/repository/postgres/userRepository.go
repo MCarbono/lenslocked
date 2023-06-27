@@ -2,8 +2,18 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"lenslocked/domain/entity"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
+)
+
+var (
+	//A common pattern is to add the package as a prefix to the error for
+	//context
+	ErrEmailTaken = errors.New("models: email address is already in use")
 )
 
 type UserRepositoryPostgres struct {
@@ -18,6 +28,14 @@ func NewUserRepositoryPostgres(db *sql.DB) *UserRepositoryPostgres {
 
 func (p *UserRepositoryPostgres) Create(user *entity.User) error {
 	_, err := p.DB.Exec(`INSERT INTO users (id, email, password_hash) VALUES ($1, $2, $3) `, user.ID, user.Email, user.PasswordHash)
+	if err != nil {
+		var pgError *pgconn.PgError
+		if errors.As(err, &pgError) {
+			if pgError.Code == pgerrcode.UniqueViolation {
+				return ErrEmailTaken
+			}
+		}
+	}
 	return err
 }
 

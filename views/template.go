@@ -23,7 +23,7 @@ type Template struct {
 	htmlTpl *template.Template
 }
 
-func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface{}) {
+func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface{}, errs ...error) {
 	tpl, err := t.htmlTpl.Clone()
 	if err != nil {
 		log.Printf("cloning template: %v", err)
@@ -38,6 +38,14 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 			"currentUser": func() *entity.User {
 				return context.User(r.Context())
 			},
+			"errors": func() []string {
+				var errorMessages []string
+				for _, err := range errs {
+					//TODO: dont keep this long term - we will see why in a later lesson
+					errorMessages = append(errorMessages, err.Error())
+				}
+				return errorMessages
+			},
 		},
 	)
 	err = tpl.Execute(w, data)
@@ -50,13 +58,6 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 
 func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 	tpl := template.New(patterns[0])
-	// tpl = tpl.Funcs(
-	// 	template.FuncMap{
-	// 		"csrfField": func() template.HTML {
-	// 			return `<input type="hidden" />`
-	// 		},
-	// 	},
-	// )
 	tpl = tpl.Funcs(
 		template.FuncMap{
 			"csrfField": func() (template.HTML, error) {
@@ -64,6 +65,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 			},
 			"currentUser": func() (*entity.User, error) {
 				return nil, fmt.Errorf("currentUser not implemented")
+			},
+			"errors": func() []string {
+				return nil
 			},
 		},
 	)
