@@ -79,7 +79,7 @@ func TestCreatePasswordReset(t *testing.T) {
 			}
 			scenario.mocks(&f)
 			passwordResetService.EmailGateway = f.mockEmailProvider
-			_, err := userService.Create("teste@email.com", "password")
+			_, err := userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -52,7 +52,7 @@ func TestProcessSignIn(t *testing.T) {
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
-	_, err = userService.Create("teste@email.com", "password")
+	_, err = userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
 	if err != nil {
 		t.Fatal(err)
 	}

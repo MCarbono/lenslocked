@@ -85,7 +85,7 @@ func TestProcessResetPassword(t *testing.T) {
 			defer db.Exec("DELETE from users;")
 			defer db.Exec("DELETE from sessions;")
 			defer db.Exec("DELETE from password_resets;")
-			user, err := userService.Create("teste@email.com", "password")
+			user, err := userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
 			if err != nil {
 				t.Fatal(err)
 			}
