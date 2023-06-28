@@ -36,7 +36,6 @@ func (us *UserService) Create(input *CreateUserInput) (*entity.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
-
 	return user, nil
 }
 

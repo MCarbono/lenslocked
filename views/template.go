@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -30,6 +31,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		http.Error(w, "There was an error rendering the page.", http.StatusInternalServerError)
 		return
 	}
+	errMsgs := errMessages(errs...)
 	tpl = tpl.Funcs(
 		template.FuncMap{
 			"csrfField": func() template.HTML {
@@ -39,12 +41,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 				return context.User(r.Context())
 			},
 			"errors": func() []string {
-				var errorMessages []string
-				for _, err := range errs {
-					//TODO: dont keep this long term - we will see why in a later lesson
-					errorMessages = append(errorMessages, err.Error())
-				}
-				return errorMessages
+				return errMsgs
 			},
 		},
 	)
@@ -76,4 +73,22 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 		return Template{}, fmt.Errorf("parsing template: %w", err)
 	}
 	return Template{htmlTpl: tpl}, nil
+}
+
+func errMessages(errs ...error) []string {
+	var msgs []string
+	for _, err := range errs {
+		var pubErr public
+		if errors.As(err, &pubErr) {
+			msgs = append(msgs, pubErr.Public())
+		} else {
+			fmt.Println(err)
+			msgs = append(msgs, "Something went wrong")
+		}
+	}
+	return msgs
+}
+
+type public interface {
+	Public() string
 }

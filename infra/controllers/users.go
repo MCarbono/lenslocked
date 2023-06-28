@@ -3,7 +3,9 @@ package controllers
 import (
 	"fmt"
 	"lenslocked/context"
+	"lenslocked/errors"
 	"lenslocked/infra/http/cookie"
+	repository "lenslocked/infra/repository/postgres"
 	"lenslocked/services"
 	"net/http"
 )
@@ -40,7 +42,11 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		Password: r.PostForm.Get("password"),
 	}
 	user, err := u.UserService.Create(input)
+
 	if err != nil {
+		if errors.Is(err, repository.ErrEmailTaken) {
+			err = errors.Public(err, "That email address is already associated with an account.")
+		}
 		u.Templates.New.Execute(w, r, input, err)
 		return
 	}
