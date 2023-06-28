@@ -28,6 +28,10 @@ func CreateDatabaseTest() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.Exec("DROP TABLE IF EXISTS galleries;")
+	if err != nil {
+		return nil, err
+	}
 	_, err = db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL);`)
 	if err != nil {
 		return nil, err
@@ -37,6 +41,10 @@ func CreateDatabaseTest() (*sql.DB, error) {
 		return nil, err
 	}
 	_, err = db.Exec(`CREATE TABLE password_resets (id TEXT PRIMARY KEY, user_id INT UNIQUE NOT NULL REFERENCES users (id) ON DELETE CASCADE, token_hash TEXT UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL);`)
+	if err != nil {
+		return nil, err
+	}
+	_, err = db.Exec(`CREATE TABLE galleries (id TEXT PRIMARY KEY, user_id TEXT UNIQUE REFERENCES users (id) ON DELETE CASCADE, title TEXT);`)
 	if err != nil {
 		return nil, err
 	}
