@@ -25,7 +25,7 @@ func (p *GalleryRepositorySQLite) FindByID(ID string) (*entity.Gallery, error) {
 	var gallery entity.Gallery
 	row := p.DB.QueryRow(`SELECT * FROM galleries WHERE id = ?`, ID)
 	if err := row.Scan(&gallery.ID, &gallery.UserID, &gallery.Title); err != nil {
-		return nil, fmt.Errorf("user: %w", err)
+		return nil, fmt.Errorf("gallery: %w", err)
 	}
 	return &gallery, nil
 }
