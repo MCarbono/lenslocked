@@ -26,6 +26,7 @@ func TestCreateGallery(t *testing.T) {
 	defer db.Close()
 	var galleryRepository = repository.NewGalleryRepositorySQLite(db)
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, fakes.NewIDGeneratorFake())
+	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
 
 	type test struct {
 		name  string
@@ -49,7 +50,7 @@ func TestCreateGallery(t *testing.T) {
 				t.Fatal(err)
 			}
 			//Replace this test with the usecase.
-			want, err := galleryRepository.FindByID(got.ID)
+			want, err := findGalleryUseCase.Execute(got.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
