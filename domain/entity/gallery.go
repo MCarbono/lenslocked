@@ -13,3 +13,9 @@ func NewGallery(ID, userID, title string) *Gallery {
 		Title:  title,
 	}
 }
+
+func (g *Gallery) Update(title string) {
+	if title != "" {
+		g.Title = title
+	}
+}
