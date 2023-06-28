@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"lenslocked/domain/entity"
 )
 
@@ -16,6 +17,15 @@ func NewGalleryRepositoryPostgres(db *sql.DB) *GalleryRepositoryPostgres {
 }
 
 func (p *GalleryRepositoryPostgres) Create(gallery *entity.Gallery) error {
-	_, err := p.DB.Exec(`INSERT INTO users (id, user_id, title) VALUES ($1, $2, $3) `, gallery.ID, gallery.UserID, gallery.Title)
+	_, err := p.DB.Exec(`INSERT INTO galleries (id, user_id, title) VALUES ($1, $2, $3) `, gallery.ID, gallery.UserID, gallery.Title)
 	return err
+}
+
+func (p *GalleryRepositoryPostgres) FindByID(ID string) (*entity.Gallery, error) {
+	var gallery entity.Gallery
+	row := p.DB.QueryRow(`SELECT * FROM galleries WHERE id = $1`, ID)
+	if err := row.Scan(&gallery.ID, &gallery.UserID, &gallery.Title); err != nil {
+		return nil, fmt.Errorf("user: %w", err)
+	}
+	return &gallery, nil
 }
