@@ -17,7 +17,7 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 		SessionService: usersC.SessionService,
 	}
 
-	csrfMw := csrf.Protect([]byte(csrfKey), csrf.Secure(csrfSecure))
+	csrfMw := csrf.Protect([]byte(csrfKey), csrf.Secure(csrfSecure), csrf.Path("/"))
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.StripSlashes)
@@ -63,6 +63,11 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 	r.Post("/reset-pw", usersC.ProcessResetPassword)
 
 	//Gallery
-	r.Get("/galleries/new", galleryController.New)
+	r.Route("/galleries", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(umw.RequireUser)
+			r.Get("/new", galleryController.New)
+		})
+	})
 	return r
 }
