@@ -19,3 +19,7 @@ func (g *Gallery) Update(title string) {
 		g.Title = title
 	}
 }
+
+func (g *Gallery) IsOwnedBy(userID string) bool {
+	return g.UserID == userID
+}
