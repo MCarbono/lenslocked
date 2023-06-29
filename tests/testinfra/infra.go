@@ -51,7 +51,7 @@ func CreateDatabaseTest() (*sql.DB, error) {
 	return db, nil
 }
 
-func NewRouterTest(usersC controllers.Users) http.Handler {
+func NewRouterTest(usersC controllers.Users, galleryController controllers.Galleries) http.Handler {
 	umw := middleware.UserMiddleware{
 		SessionService: usersC.SessionService,
 	}
@@ -78,6 +78,7 @@ func NewRouterTest(usersC controllers.Users) http.Handler {
 	usersC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
+	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
 
 	r.Get("/users/new", usersC.New)
 	r.Post("/users", usersC.Create)
@@ -95,5 +96,8 @@ func NewRouterTest(usersC controllers.Users) http.Handler {
 
 	r.Get("/reset-pw", usersC.ResetPassword)
 	r.Post("/reset-pw", usersC.ProcessResetPassword)
+
+	//Gallery
+	r.Get("/galleries/new", galleryController.New)
 	return r
 }
