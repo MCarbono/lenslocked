@@ -2,6 +2,7 @@ package integration
 
 import (
 	"lenslocked/application/usecases"
+	"lenslocked/domain/entity"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
@@ -11,7 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestCreateGallery(t *testing.T) {
+func TestUpdateGallery(t *testing.T) {
 	t.Cleanup(func() {
 		cmd := exec.Command("rm", "../lenslocked_test.db")
 		err := cmd.Run()
@@ -26,33 +27,45 @@ func TestCreateGallery(t *testing.T) {
 	defer db.Close()
 	var galleryRepository = repository.NewGalleryRepositorySQLite(db)
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, fakes.NewIDGeneratorFake())
+	var updateGalleryUseCase = usecases.NewUpdateGalleryUseCase(galleryRepository)
 	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
 
 	type test struct {
-		name  string
-		input *usecases.CreateGalleryInput
+		name               string
+		createGalleryinput *usecases.CreateGalleryInput
+		updateGalleryInput *usecases.UpdateGalleryInput
+		want               *entity.Gallery
 	}
 
 	tests := []test{
 		{
 			name: "Should create a new gallery",
-			input: &usecases.CreateGalleryInput{
+			createGalleryinput: &usecases.CreateGalleryInput{
 				Title:  "Gallery fake test",
-				UserID: "fakeUserID123",
+				UserID: "fakerUserID123",
 			},
+			updateGalleryInput: &usecases.UpdateGalleryInput{
+				ID:    fakes.NewIDGeneratorFake().Generate(),
+				Title: "Updated Gallery Title",
+			},
+			want: entity.NewGallery(fakes.NewIDGeneratorFake().Generate(), "fakerUserID123", "Updated Gallery Title"),
 		},
 	}
 	for _, scenario := range tests {
 		t.Run(scenario.name, func(t *testing.T) {
-			got, err := createGalleryUseCase.Execute(scenario.input)
+			galleryCreated, err := createGalleryUseCase.Execute(scenario.createGalleryinput)
 			if err != nil {
 				t.Fatal(err)
 			}
-			want, err := findGalleryUseCase.Execute(got.ID)
+			err = updateGalleryUseCase.Execute(scenario.updateGalleryInput)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if diff := cmp.Diff(want, got); diff != "" {
+			got, err := findGalleryUseCase.Execute(galleryCreated.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(scenario.want, got); diff != "" {
 				t.Errorf("Create Gallery mismatch (-want +got):\n%v", diff)
 			}
 		})
