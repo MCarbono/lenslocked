@@ -44,7 +44,7 @@ func CreateDatabaseTest() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = db.Exec(`CREATE TABLE galleries (id TEXT PRIMARY KEY, user_id TEXT UNIQUE REFERENCES users (id) ON DELETE CASCADE, title TEXT);`)
+	_, err = db.Exec(`CREATE TABLE galleries (id TEXT PRIMARY KEY, user_id TEXT REFERENCES users (id) ON DELETE CASCADE, title TEXT);`)
 	if err != nil {
 		return nil, err
 	}
