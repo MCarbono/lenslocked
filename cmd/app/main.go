@@ -67,7 +67,7 @@ func Start() {
 
 	galleryRepository := repository.NewGalleryRepositoryPostgres(db)
 	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator.New())
-	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
+	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository, repository.NewUserRepositoryPostgres(db))
 	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository)
 	findGalleriesUseCase := usecases.NewFindGalleriesUseCase(galleryRepository)
 	deleteGalleryUseCase := usecases.NewDeleteGalleryUseCase(galleryRepository)
