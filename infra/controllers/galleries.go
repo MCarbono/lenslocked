@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"lenslocked/application/usecases"
+	"lenslocked/context"
 	"net/http"
 )
 
@@ -22,4 +24,18 @@ func (g Galleries) New(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Title = r.FormValue("title")
 	g.Templates.New.Execute(w, r, data)
+}
+
+func (g Galleries) Create(w http.ResponseWriter, r *http.Request) {
+	var input = &usecases.CreateGalleryInput{
+		UserID: context.User(r.Context()).ID,
+		Title:  r.FormValue("title"),
+	}
+	gallery, err := g.CreateGalleryUseCase.Execute(input)
+	if err != nil {
+		g.Templates.New.Execute(w, r, input, err)
+		return
+	}
+	editPath := fmt.Sprintf("/galleries/%s/edit", gallery.ID)
+	http.Redirect(w, r, editPath, http.StatusFound)
 }
