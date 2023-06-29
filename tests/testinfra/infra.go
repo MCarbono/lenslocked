@@ -98,6 +98,12 @@ func NewRouterTest(usersC controllers.Users, galleryController controllers.Galle
 	r.Post("/reset-pw", usersC.ProcessResetPassword)
 
 	//Gallery
-	r.Get("/galleries/new", galleryController.New)
+	r.Route("/galleries", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(umw.RequireUser)
+			r.Get("/new", galleryController.New)
+			r.Post("/", galleryController.Create)
+		})
+	})
 	return r
 }
