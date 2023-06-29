@@ -59,7 +59,7 @@ func TestProcessResetPassword(t *testing.T) {
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService, UserService: userService}
-	r := testinfra.NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 

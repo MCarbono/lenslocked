@@ -53,7 +53,7 @@ func TestCreateUser(t *testing.T) {
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
-	r := testinfra.NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 	type args struct {

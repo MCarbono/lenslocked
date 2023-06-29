@@ -53,7 +53,7 @@ func TestProcessSignOut(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := testinfra.NewRouterTest(userController)
+	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 	type args struct {
