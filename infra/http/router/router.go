@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/csrf"
 )
 
-func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler {
+func New(usersC controllers.Users, galleryController controllers.Galleries, csrfKey string, csrfSecure bool) http.Handler {
 	umw := middleware.UserMiddleware{
 		SessionService: usersC.SessionService,
 	}
@@ -43,6 +43,7 @@ func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler
 	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
 	usersC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
+	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
 
 	r.Get("/users/new", usersC.New)
 	r.Post("/users", usersC.Create)
@@ -60,5 +61,8 @@ func New(usersC controllers.Users, csrfKey string, csrfSecure bool) http.Handler
 
 	r.Get("/reset-pw", usersC.ResetPassword)
 	r.Post("/reset-pw", usersC.ProcessResetPassword)
+
+	//Gallery
+	r.Get("/galleries/new", galleryController.New)
 	return r
 }

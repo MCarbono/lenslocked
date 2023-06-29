@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"lenslocked/application/usecases"
 	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/database"
@@ -63,6 +64,22 @@ func Start() {
 		SessionService:       sessionService,
 		PasswordResetService: pwResetService,
 	}
+
+	galleryRepository := repository.NewGalleryRepositoryPostgres(db)
+	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator.New())
+	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
+	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository)
+	findGalleriesUseCase := usecases.NewFindGalleriesUseCase(galleryRepository)
+	deleteGalleryUseCase := usecases.NewDeleteGalleryUseCase(galleryRepository)
+
+	galleryController := controllers.Galleries{
+		CreateGalleryUseCase: createGalleryUseCase,
+		UpdateGalleryUseCase: updateGalleryUseCase,
+		FindGalleryUseCase:   findGalleryUseCase,
+		FindGalleriesUseCase: findGalleriesUseCase,
+		DeleteGalleryUseCase: deleteGalleryUseCase,
+	}
+
 	fmt.Printf("Starting the server on port %v\n", cfg.Server.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.Server.Port, router.New(usersC, cfg.CSRF.Key, cfg.CSRF.Secure)))
+	log.Fatal(http.ListenAndServe(":"+cfg.Server.Port, router.New(usersC, galleryController, cfg.CSRF.Key, cfg.CSRF.Secure)))
 }
