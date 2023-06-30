@@ -43,7 +43,9 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.gohtml", "tailwind.gohtml"))
 	usersC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
+
 	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
+	galleryController.Templates.Edit = views.Must(views.ParseFS(templates.FS, "galleries/edit.gohtml", "tailwind.gohtml"))
 
 	r.Get("/users/new", usersC.New)
 	r.Post("/users", usersC.Create)
@@ -68,6 +70,7 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 			r.Use(umw.RequireUser)
 			r.Get("/new", galleryController.New)
 			r.Post("/", galleryController.Create)
+			r.Get("/{id}/edit", galleryController.Edit)
 		})
 	})
 	return r

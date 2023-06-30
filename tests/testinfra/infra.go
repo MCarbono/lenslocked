@@ -78,7 +78,9 @@ func NewRouterTest(usersC controllers.Users, galleryController controllers.Galle
 	usersC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "check-your-email.gohtml", "tailwind.gohtml"))
 	usersC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.gohtml", "tailwind.gohtml"))
+
 	galleryController.Templates.New = views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml"))
+	galleryController.Templates.Edit = views.Must(views.ParseFS(templates.FS, "galleries/edit.gohtml", "tailwind.gohtml"))
 
 	r.Get("/users/new", usersC.New)
 	r.Post("/users", usersC.Create)
@@ -103,6 +105,7 @@ func NewRouterTest(usersC controllers.Users, galleryController controllers.Galle
 			r.Use(umw.RequireUser)
 			r.Get("/new", galleryController.New)
 			r.Post("/", galleryController.Create)
+			r.Get("/{id}/edit", galleryController.Edit)
 		})
 	})
 	return r
