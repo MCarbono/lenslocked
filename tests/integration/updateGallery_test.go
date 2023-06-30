@@ -4,7 +4,6 @@ import (
 	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/services"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"os/exec"
@@ -27,14 +26,9 @@ func TestUpdateGallery(t *testing.T) {
 	}
 	defer db.Close()
 	var galleryRepository = repository.NewGalleryRepositorySQLite(db)
-	var userRepository = repository.NewUserRepositorySQLite(db)
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, fakes.NewIDGeneratorFake())
-	var updateGalleryUseCase = usecases.NewUpdateGalleryUseCase(galleryRepository, userRepository)
+	var updateGalleryUseCase = usecases.NewUpdateGalleryUseCase(galleryRepository)
 	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-		IDGenerator:    fakes.NewIDGeneratorFake(),
-	}
 
 	type test struct {
 		name               string
@@ -59,10 +53,6 @@ func TestUpdateGallery(t *testing.T) {
 	}
 	for _, scenario := range tests {
 		t.Run(scenario.name, func(t *testing.T) {
-			_, err := userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
-			if err != nil {
-				t.Fatal(err)
-			}
 			galleryCreated, err := createGalleryUseCase.Execute(scenario.createGalleryinput)
 			if err != nil {
 				t.Fatal(err)
