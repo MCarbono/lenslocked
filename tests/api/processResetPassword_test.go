@@ -10,7 +10,7 @@ import (
 	"lenslocked/rand"
 	"lenslocked/services"
 	"lenslocked/tests/testinfra"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -47,12 +47,12 @@ func TestProcessResetPassword(t *testing.T) {
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
-		TokenManager:      token.ManagerImpl{},
+		TokenManager:      tokenManager.New(),
 		IDGenerator:       idGenerator.New(),
 	}
 
 	var passwordResetService = &services.PasswordResetService{
-		TokenManager:      token.ManagerImpl{},
+		TokenManager:      tokenManager.New(),
 		PasswordReset:     passwordResetRepository,
 		UserRepository:    userRepository,
 		SessionRepository: sessionRepository,

@@ -6,14 +6,14 @@ import (
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 )
 
 type SessionService struct {
 	DB                *sql.DB
 	SessionRepository repository.SessionRepository
 	UserRepository    repository.UserRepository
-	TokenManager      token.Manager
+	TokenManager      tokenManager.Manager
 	BytesPerToken     int
 	idGenerator.IDGenerator
 }

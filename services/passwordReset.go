@@ -8,7 +8,7 @@ import (
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
 	"lenslocked/rand"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 	"net/url"
 	"strings"
 	"time"
@@ -33,7 +33,7 @@ type PasswordResetService struct {
 	// Duration is the amount of time that a PasswordReset is valid for.
 	// Defaults to DefaultResetDuration
 	Duration          time.Duration
-	TokenManager      token.Manager
+	TokenManager      tokenManager.Manager
 	UserRepository    repository.UserRepository
 	PasswordReset     repository.PasswordResetRepository
 	EmailGateway      gateway.EmailProvider

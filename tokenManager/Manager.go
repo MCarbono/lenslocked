@@ -1,4 +1,4 @@
-package token
+package tokenManager
 
 type Manager interface {
 	NewToken(bytesPerToken int) (token, tokenHash string, err error)

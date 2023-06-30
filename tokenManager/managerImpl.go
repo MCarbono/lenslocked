@@ -1,4 +1,4 @@
-package token
+package tokenManager
 
 import (
 	"crypto/sha256"
@@ -6,8 +6,15 @@ import (
 	"lenslocked/rand"
 )
 
+const (
+	MIN_BYTES_PER_TOKEN = 32
+)
+
 type ManagerImpl struct {
-	minBytesPerToken int
+}
+
+func New() *ManagerImpl {
+	return &ManagerImpl{}
 }
 
 func (tm ManagerImpl) NewToken(bytesPerToken int) (token, tokenHash string, err error) {
@@ -21,10 +28,4 @@ func (tm ManagerImpl) NewToken(bytesPerToken int) (token, tokenHash string, err 
 func (tm ManagerImpl) Hash(token string) string {
 	tokenHash := sha256.Sum256([]byte(token))
 	return base64.URLEncoding.EncodeToString(tokenHash[:])
-}
-
-func New() ManagerImpl {
-	return ManagerImpl{
-		minBytesPerToken: 32,
-	}
 }

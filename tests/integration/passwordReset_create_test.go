@@ -7,7 +7,7 @@ import (
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
 	"lenslocked/tests/testinfra"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 	"os/exec"
 	"testing"
 
@@ -37,7 +37,7 @@ func TestCreatePasswordReset(t *testing.T) {
 		IDGenerator:    idGenerator.New(),
 	}
 	var passwordResetService = &services.PasswordResetService{
-		TokenManager:   token.ManagerImpl{},
+		TokenManager:   tokenManager.New(),
 		UserRepository: userRepository,
 		PasswordReset:  passwordResetRepository,
 		IDGenerator:    idGenerator.New(),

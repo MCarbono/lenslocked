@@ -14,7 +14,7 @@ import (
 	"lenslocked/infra/http/router"
 	"lenslocked/services"
 	"lenslocked/templates"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 	"lenslocked/views"
 
 	repository "lenslocked/infra/repository/postgres"
@@ -38,6 +38,7 @@ func Start() {
 	idGenerator := idGenerator.New()
 	userRepository := repository.NewUserRepositoryPostgres(db)
 	sessionRepository := repository.NewSessionRepositoryPostgres(db)
+	tokenManager := tokenManager.New()
 	userService := &services.UserService{
 		UserRepository: userRepository,
 		DB:             db,
@@ -47,14 +48,14 @@ func Start() {
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
-		TokenManager:      token.ManagerImpl{},
+		TokenManager:      tokenManager,
 		IDGenerator:       idGenerator,
 	}
 	pwResetService := &services.PasswordResetService{
 		DB:             db,
 		UserRepository: userRepository,
 		PasswordReset:  repository.NewPasswordResetPostgres(db),
-		TokenManager:   token.ManagerImpl{},
+		TokenManager:   tokenManager,
 		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
 			Host:     cfg.SMTP.Host,
 			Port:     cfg.SMTP.Port,

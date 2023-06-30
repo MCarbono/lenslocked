@@ -9,7 +9,7 @@ import (
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
 	"lenslocked/tests/testinfra"
-	"lenslocked/token"
+	"lenslocked/tokenManager"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -45,7 +45,7 @@ func TestProcessSignOut(t *testing.T) {
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
-		TokenManager:      token.ManagerImpl{},
+		TokenManager:      tokenManager.New(),
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
