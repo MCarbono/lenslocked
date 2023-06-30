@@ -36,21 +36,23 @@ func Start() {
 	}
 	fmt.Println("Database connected!")
 	idGenerator := idGenerator.New()
+	userRepository := repository.NewUserRepositoryPostgres(db)
+	sessionRepository := repository.NewSessionRepositoryPostgres(db)
 	userService := &services.UserService{
-		UserRepository: repository.NewUserRepositoryPostgres(db),
+		UserRepository: userRepository,
 		DB:             db,
 		IDGenerator:    idGenerator,
 	}
 	sessionService := &services.SessionService{
 		DB:                db,
-		SessionRepository: repository.NewSessionRepositoryPostgres(db),
-		UserRepository:    repository.NewUserRepositoryPostgres(db),
+		SessionRepository: sessionRepository,
+		UserRepository:    userRepository,
 		TokenManager:      token.ManagerImpl{},
 		IDGenerator:       idGenerator,
 	}
 	pwResetService := &services.PasswordResetService{
 		DB:             db,
-		UserRepository: repository.NewUserRepositoryPostgres(db),
+		UserRepository: userRepository,
 		PasswordReset:  repository.NewPasswordResetPostgres(db),
 		TokenManager:   token.ManagerImpl{},
 		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
@@ -59,7 +61,7 @@ func Start() {
 			Username: cfg.SMTP.Username,
 			Password: cfg.SMTP.Password,
 		}),
-		SessionRepository: repository.NewSessionRepositoryPostgres(db),
+		SessionRepository: sessionRepository,
 		IDGenerator:       idGenerator,
 	}
 	usersC := controllers.Users{
