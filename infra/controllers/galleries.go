@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lenslocked/application/usecases"
 	"lenslocked/context"
+	"math/rand"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -11,6 +12,7 @@ import (
 
 type Galleries struct {
 	Templates struct {
+		Show  Template
 		New   Template
 		Edit  Template
 		Index Template
@@ -96,4 +98,25 @@ func (g Galleries) Index(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Galleries = dto
 	g.Templates.Index.Execute(w, r, data)
+}
+
+func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	gallery, err := g.FindGalleryUseCase.Execute(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	var data struct {
+		ID     string
+		Title  string
+		Images []string
+	}
+	data.ID = gallery.ID
+	data.Title = gallery.Title
+	for i := 0; i < 20; i++ {
+		w, h := rand.Intn(500)+200, rand.Intn(500)+200
+		catImageURL := fmt.Sprintf("https://placekitten.com/%d/%d", w, h)
+		data.Images = append(data.Images, catImageURL)
+	}
+	g.Templates.Show.Execute(w, r, data)
 }
