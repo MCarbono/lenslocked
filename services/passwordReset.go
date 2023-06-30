@@ -20,7 +20,6 @@ const (
 	// DefaultResetDuration is the default time that a PasswordReset is
 	// valid for.
 	DefaultResetDuration = 1 * time.Hour
-	MinBytesPerToken     = 32
 )
 
 type PasswordResetService struct {
@@ -51,7 +50,7 @@ func (service *PasswordResetService) Create(email, resetPasswordURL string) (*en
 	//Build the passwordReset
 	bytesPerToken := service.BytesPerToken
 	if bytesPerToken == 0 {
-		bytesPerToken = MinBytesPerToken
+		bytesPerToken = tokenManager.MIN_BYTES_PER_TOKEN
 	}
 	token, err := rand.String(bytesPerToken)
 	if err != nil {
@@ -120,8 +119,8 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 	// will be returned as the Token field on the Session type, but only the hashed
 	// session token is stored in the database.
 	bytesPerToken := service.BytesPerToken
-	if bytesPerToken < MinBytesPerToken {
-		bytesPerToken = MinBytesPerToken
+	if bytesPerToken < tokenManager.MIN_BYTES_PER_TOKEN {
+		bytesPerToken = tokenManager.MIN_BYTES_PER_TOKEN
 	}
 	token, tokenHash, err = service.TokenManager.NewToken(bytesPerToken)
 	if err != nil {

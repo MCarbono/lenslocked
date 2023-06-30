@@ -23,8 +23,8 @@ type SessionService struct {
 // session token is stored in the database.
 func (ss *SessionService) Create(userID string) (*entity.Session, error) {
 	bytesPerToken := ss.BytesPerToken
-	if bytesPerToken < MinBytesPerToken {
-		bytesPerToken = MinBytesPerToken
+	if bytesPerToken < tokenManager.MIN_BYTES_PER_TOKEN {
+		bytesPerToken = tokenManager.MIN_BYTES_PER_TOKEN
 	}
 	token, tokenHash, err := ss.TokenManager.NewToken(bytesPerToken)
 	if err != nil {
