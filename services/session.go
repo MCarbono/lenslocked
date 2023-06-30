@@ -26,7 +26,7 @@ func (ss *SessionService) Create(userID string) (*entity.Session, error) {
 	if bytesPerToken < MinBytesPerToken {
 		bytesPerToken = MinBytesPerToken
 	}
-	token, tokenHash, err := ss.TokenManager.New(bytesPerToken)
+	token, tokenHash, err := ss.TokenManager.NewToken(bytesPerToken)
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}

@@ -123,7 +123,7 @@ func (service *PasswordResetService) Consume(token, password string) (*entity.Se
 	if bytesPerToken < MinBytesPerToken {
 		bytesPerToken = MinBytesPerToken
 	}
-	token, tokenHash, err = service.TokenManager.New(bytesPerToken)
+	token, tokenHash, err = service.TokenManager.NewToken(bytesPerToken)
 	if err != nil {
 		return nil, fmt.Errorf("create token: %w", err)
 	}
