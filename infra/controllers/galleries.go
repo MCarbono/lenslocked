@@ -11,8 +11,9 @@ import (
 
 type Galleries struct {
 	Templates struct {
-		New  Template
-		Edit Template
+		New   Template
+		Edit  Template
+		Index Template
 	}
 	*usecases.CreateGalleryUseCase
 	*usecases.UpdateGalleryUseCase
@@ -62,7 +63,6 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 func (g Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	title := r.FormValue("title")
-
 	err := g.UpdateGalleryUseCase.Execute(&usecases.UpdateGalleryInput{ID: id, Title: title})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,4 +70,30 @@ func (g Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	editPath := fmt.Sprintf("/galleries/%s/edit", id)
 	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
+func (g Galleries) Index(w http.ResponseWriter, r *http.Request) {
+	type Gallery struct {
+		ID    string
+		Title string
+	}
+	var data struct {
+		Galleries []Gallery
+	}
+
+	user := context.User(r.Context())
+	galleries, err := g.FindGalleriesUseCase.Execute(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	dto := make([]Gallery, len(galleries))
+	for i := range dto {
+		dto[i] = Gallery{
+			ID:    galleries[i].ID,
+			Title: galleries[i].Title,
+		}
+	}
+	data.Galleries = dto
+	g.Templates.Index.Execute(w, r, data)
 }

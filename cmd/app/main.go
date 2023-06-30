@@ -98,11 +98,13 @@ func Start() {
 		FindGalleriesUseCase: findGalleriesUseCase,
 		DeleteGalleryUseCase: deleteGalleryUseCase,
 		Templates: struct {
-			New  controllers.Template
-			Edit controllers.Template
+			New   controllers.Template
+			Edit  controllers.Template
+			Index controllers.Template
 		}{
-			New:  views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml")),
-			Edit: views.Must(views.ParseFS(templates.FS, "galleries/edit.gohtml", "tailwind.gohtml")),
+			New:   views.Must(views.ParseFS(templates.FS, "galleries/new.gohtml", "tailwind.gohtml")),
+			Edit:  views.Must(views.ParseFS(templates.FS, "galleries/edit.gohtml", "tailwind.gohtml")),
+			Index: views.Must(views.ParseFS(templates.FS, "galleries/index.gohtml", "tailwind.gohtml")),
 		},
 	}
 

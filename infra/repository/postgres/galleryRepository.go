@@ -37,12 +37,12 @@ func (p *GalleryRepositoryPostgres) FindAll(UserID string) ([]*entity.Gallery, e
 	}
 	var galleries []*entity.Gallery
 	for rows.Next() {
-		var gallery *entity.Gallery
-		err := rows.Scan(gallery.ID, gallery.UserID, gallery.Title)
+		var gallery entity.Gallery
+		err := rows.Scan(&gallery.ID, &gallery.UserID, &gallery.Title)
 		if err != nil {
 			return nil, fmt.Errorf("query galleries by user id %w", err)
 		}
-		galleries = append(galleries, gallery)
+		galleries = append(galleries, &gallery)
 	}
 	if rows.Err() != nil {
 		return nil, fmt.Errorf("query galleries by user id %w", err)
