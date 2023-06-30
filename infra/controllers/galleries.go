@@ -58,3 +58,16 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	// }
 	g.Templates.Edit.Execute(w, r, gallery)
 }
+
+func (g Galleries) Update(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	title := r.FormValue("title")
+
+	err := g.UpdateGalleryUseCase.Execute(&usecases.UpdateGalleryInput{ID: id, Title: title})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	editPath := fmt.Sprintf("/galleries/%s/edit", id)
+	http.Redirect(w, r, editPath, http.StatusFound)
+}
