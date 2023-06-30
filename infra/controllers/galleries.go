@@ -5,11 +5,14 @@ import (
 	"lenslocked/application/usecases"
 	"lenslocked/context"
 	"net/http"
+
+	"github.com/go-chi/chi"
 )
 
 type Galleries struct {
 	Templates struct {
-		New Template
+		New  Template
+		Edit Template
 	}
 	*usecases.CreateGalleryUseCase
 	*usecases.UpdateGalleryUseCase
@@ -38,4 +41,20 @@ func (g Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	editPath := fmt.Sprintf("/galleries/%s/edit", gallery.ID)
 	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
+func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	gallery, err := g.FindGalleryUseCase.Execute(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	// input := struct {
+	// 	ID    string
+	// 	Title string
+	// }{
+	// 	ID:    gallery.ID,
+	// 	Title: gallery.Title,
+	// }
+	g.Templates.Edit.Execute(w, r, gallery)
 }
