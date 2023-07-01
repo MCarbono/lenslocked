@@ -40,9 +40,17 @@ func TestCreateUser(t *testing.T) {
 				Password: "password",
 			},
 		},
+		{
+			name: "Should create a new user with email as uppercase",
+			input: &usecases.CreateUserInput{
+				Email:    "USER@EMAIL.COM",
+				Password: "password",
+			},
+		},
 	}
 	for _, scenario := range tests {
 		t.Run(scenario.name, func(t *testing.T) {
+			defer db.Exec("DELETE from users;")
 			got, err := creteUserUseCase.Execute(scenario.input)
 			if err != nil {
 				t.Fatal(err)
