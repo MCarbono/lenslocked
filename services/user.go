@@ -25,11 +25,6 @@ type UserService struct {
 	idGenerator.IDGenerator
 }
 
-type CreateUserInput struct {
-	Email    string
-	Password string
-}
-
 func (us *UserService) Authenticate(email, password string) (*entity.User, error) {
 	email = strings.ToLower(email)
 	user, err := us.UserRepository.FindByEmail(email)
