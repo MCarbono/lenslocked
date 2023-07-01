@@ -37,20 +37,27 @@ func TestProcessSignOut(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	tokenManager := tokenManager.New()
+	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
-		IDGenerator:    idGenerator.New(),
+		IDGenerator:    idGenerator,
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
-		TokenManager:      tokenManager.New(),
-		IDGenerator:       idGenerator.New(),
+		TokenManager:      tokenManager,
+		IDGenerator:       idGenerator,
 	}
-	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
+	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
+	var userController = controllers.Users{
+		UserService:          userService,
+		SessionService:       sessionService,
+		CreateSessionUseCase: createSessionUseCase,
+	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
 	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 	if err != nil {
