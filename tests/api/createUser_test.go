@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
-	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
@@ -39,20 +39,29 @@ func TestCreateUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	idGenerator := fakes.NewIDGeneratorFake()
+	tokenManager := tokenManager.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
-		IDGenerator:    fakes.NewIDGeneratorFake(),
+		IDGenerator:    idGenerator,
 	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
-		TokenManager:      tokenManager.New(),
-		IDGenerator:       idGenerator.New(),
+		TokenManager:      tokenManager,
+		IDGenerator:       idGenerator,
 	}
-	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
+	var creteUserUseCase = usecases.NewCreateUserUseCase(userRepository, idGenerator)
+	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
+	var userController = controllers.Users{
+		UserService:          userService,
+		SessionService:       sessionService,
+		CreateUserUseCase:    creteUserUseCase,
+		CreateSessionUseCase: createSessionUseCase,
+	}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()

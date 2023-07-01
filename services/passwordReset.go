@@ -93,6 +93,7 @@ func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
 }
 
 // We are going to consume a token and return the session associated with it, or return an error if the token wasn't valid for any reason.
+//TODO: Unit of Work
 func (service *PasswordResetService) Consume(token, password string) (*entity.Session, error) {
 	tokenHash := service.TokenManager.Hash(token)
 	pwReset, err := service.PasswordReset.FindByTokenHash(tokenHash)

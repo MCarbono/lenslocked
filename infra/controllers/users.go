@@ -23,6 +23,7 @@ type Users struct {
 	SessionService       *services.SessionService
 	PasswordResetService *services.PasswordResetService
 	CreateUserUseCase    *usecases.CreateUserUseCase
+	CreateSessionUseCase *usecases.CreateSessionUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +53,8 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		u.Templates.New.Execute(w, r, input, err)
 		return
 	}
-	//Refact this. Return a Session from the Create User
-	session, err := u.SessionService.Create(user.ID)
+
+	session, err := u.CreateSessionUseCase.Execute(user.ID)
 	if err != nil {
 		fmt.Println(err)
 		//TODO: long term, we should show a warning about not being able to sign the user in.
@@ -85,7 +86,7 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	session, err := u.SessionService.Create(user.ID)
+	session, err := u.CreateSessionUseCase.Execute(user.ID)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
