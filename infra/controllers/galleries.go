@@ -120,3 +120,12 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	}
 	g.Templates.Show.Execute(w, r, data)
 }
+
+func (g Galleries) Delete(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if err := g.DeleteGalleryUseCase.Execute(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/galleries", http.StatusFound)
+}

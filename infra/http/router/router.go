@@ -65,6 +65,7 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 			r.Post("/", galleryController.Create)
 			r.Get("/{id}/edit", galleryController.Edit)
 			r.Post("/{id}", galleryController.Update)
+			r.Post("/{id}/delete", galleryController.Delete)
 		})
 	})
 	return r
