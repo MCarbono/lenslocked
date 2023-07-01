@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
@@ -36,19 +37,21 @@ func TestProcessResetPassword(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
 	var userService = &services.UserService{
 		UserRepository: userRepository,
-		IDGenerator:    idGenerator.New(),
+		IDGenerator:    idGenerator,
 	}
+	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
 		UserRepository:    userRepository,
 		TokenManager:      tokenManager.New(),
-		IDGenerator:       idGenerator.New(),
+		IDGenerator:       idGenerator,
 	}
 
 	var passwordResetService = &services.PasswordResetService{
@@ -56,7 +59,7 @@ func TestProcessResetPassword(t *testing.T) {
 		PasswordReset:     passwordResetRepository,
 		UserRepository:    userRepository,
 		SessionRepository: sessionRepository,
-		IDGenerator:       idGenerator.New(),
+		IDGenerator:       idGenerator,
 	}
 	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService, UserService: userService}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
@@ -85,7 +88,7 @@ func TestProcessResetPassword(t *testing.T) {
 			defer db.Exec("DELETE from users;")
 			defer db.Exec("DELETE from sessions;")
 			defer db.Exec("DELETE from password_resets;")
-			user, err := userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
+			user, err := createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 			if err != nil {
 				t.Fatal(err)
 			}

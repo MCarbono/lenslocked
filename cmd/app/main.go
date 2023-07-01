@@ -69,6 +69,7 @@ func Start() {
 		UserService:          userService,
 		SessionService:       sessionService,
 		PasswordResetService: pwResetService,
+		CreateUserUseCase:    usecases.NewCreateUserUseCase(userRepository, idGenerator),
 		Templates: struct {
 			New            controllers.Template
 			SignIn         controllers.Template

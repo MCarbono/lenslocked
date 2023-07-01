@@ -3,11 +3,13 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"lenslocked/application/usecases"
 	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
+	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
 	"net/http"
@@ -49,7 +51,8 @@ func TestProcessSignOut(t *testing.T) {
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
-	_, err = userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
+	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
+	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 	if err != nil {
 		t.Fatal(err)
 	}

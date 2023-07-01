@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"io/ioutil"
+	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
 	"lenslocked/infra/controllers"
@@ -52,7 +53,8 @@ func TestProcessSignIn(t *testing.T) {
 		IDGenerator:       idGenerator.New(),
 	}
 	var userController = controllers.Users{UserService: userService, SessionService: sessionService}
-	_, err = userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
+	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
+	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,8 +85,6 @@ func TestProcessSignIn(t *testing.T) {
 	}
 	for _, scenario := range tests {
 		t.Run(scenario.name, func(t *testing.T) {
-			defer db.Exec("DELETE from users;")
-			defer db.Exec("DELETE from sessions;")
 			data := url.Values{}
 			data.Add("email", scenario.args.email)
 			data.Add("password", scenario.args.password)

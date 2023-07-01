@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"lenslocked/application/usecases"
 	"lenslocked/context"
 	"lenslocked/errors"
 	"lenslocked/infra/http/cookie"
@@ -21,6 +22,7 @@ type Users struct {
 	UserService          *services.UserService
 	SessionService       *services.SessionService
 	PasswordResetService *services.PasswordResetService
+	CreateUserUseCase    *usecases.CreateUserUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -37,11 +39,11 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse form submission.", http.StatusBadRequest)
 		return
 	}
-	input := &services.CreateUserInput{
+	input := &usecases.CreateUserInput{
 		Email:    r.PostForm.Get("email"),
 		Password: r.PostForm.Get("password"),
 	}
-	user, err := u.UserService.Create(input)
+	user, err := u.CreateUserUseCase.Execute(input)
 
 	if err != nil {
 		if errors.Is(err, repository.ErrEmailTaken) {

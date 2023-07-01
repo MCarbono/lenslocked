@@ -1,11 +1,13 @@
 package integration
 
 import (
+	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
 	"lenslocked/gen/mock"
 	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/services"
+	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
 	"os/exec"
@@ -32,10 +34,8 @@ func TestCreatePasswordReset(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-		IDGenerator:    idGenerator.New(),
-	}
+	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
+
 	var passwordResetService = &services.PasswordResetService{
 		TokenManager:   tokenManager.New(),
 		UserRepository: userRepository,
@@ -79,7 +79,7 @@ func TestCreatePasswordReset(t *testing.T) {
 			}
 			scenario.mocks(&f)
 			passwordResetService.EmailGateway = f.mockEmailProvider
-			_, err := userService.Create(&services.CreateUserInput{Email: "teste@email.com", Password: "password"})
+			_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 			if err != nil {
 				t.Fatal(err)
 			}
