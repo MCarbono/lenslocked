@@ -23,7 +23,7 @@ func NewCreateSessionUseCase(sessionRepository repository.SessionRepository, tok
 	}
 }
 
-// Create will create a new session for the user provided. The session token
+// Execute will create a new session for the user provided. The session token
 // will be returned as the Token field on the Session type, but only the hashed
 // session token is stored in the database.
 func (uc *CreateSessionUseCase) Execute(userID string) (*entity.Session, error) {
