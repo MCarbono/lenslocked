@@ -9,7 +9,6 @@ import (
 	"lenslocked/infra/controllers"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/rand"
-	"lenslocked/services"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
 	"net/http"
@@ -42,19 +41,12 @@ func TestProcessResetPassword(t *testing.T) {
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
-	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGenerator)
+	var createUserUseCase = usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
-
-	var passwordResetService = &services.PasswordResetService{
-		TokenManager:      tokenManager,
-		PasswordReset:     passwordResetRepository,
-		UserRepository:    userRepository,
-		SessionRepository: sessionRepository,
-		IDGenerator:       idGenerator,
-	}
+	var resetPasswordUseCase = usecases.NewResetPasswordUseCase(userRepository, passwordResetRepository, sessionRepository, idGenerator, tokenManager)
 	var userController = controllers.Users{
-		PasswordResetService:   passwordResetService,
 		FindUserByTokenUseCase: findUserByTokenUseCase,
+		ResetPasswordUseCase:   resetPasswordUseCase,
 	}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
@@ -90,9 +82,9 @@ func TestProcessResetPassword(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			tokenHash := passwordResetService.TokenManager.Hash(token)
-			passwordReset := entity.NewPasswordReset(passwordResetService.Generate(), user.ID, token, tokenHash, 1*time.Hour)
-			err = passwordResetService.PasswordReset.Create(passwordReset)
+			tokenHash := tokenManager.Hash(token)
+			passwordReset := entity.NewPasswordReset(idGenerator.Generate(), user.ID, token, tokenHash, 1*time.Hour)
+			err = passwordResetRepository.Create(passwordReset)
 			if err != nil {
 				t.Fatal(err)
 			}

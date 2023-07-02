@@ -7,7 +7,6 @@ import (
 	"lenslocked/errors"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/postgres"
-	"lenslocked/services"
 	"net/http"
 )
 
@@ -19,13 +18,13 @@ type Users struct {
 		CheckYourEmail Template
 		ResetPassword  Template
 	}
-	PasswordResetService   *services.PasswordResetService
 	CreateUserUseCase      *usecases.CreateUserUseCase
 	CreateSessionUseCase   *usecases.CreateSessionUseCase
 	SignInUseCase          *usecases.SignInUseCase
 	SignOutUseCase         *usecases.SignOutUseCase
 	FindUserByTokenUseCase *usecases.FindUserByTokenUseCase
 	ForgotPasswordUseCase  *usecases.ForgotPasswordUseCase
+	ResetPasswordUseCase   *usecases.ResetPasswordUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -158,14 +157,12 @@ func (u Users) ResetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) ProcessResetPassword(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		Token    string
-		Password string
-	}
-	data.Token = r.FormValue("token")
-	data.Password = r.FormValue("password")
 
-	session, err := u.PasswordResetService.Consume(data.Token, data.Password)
+	input := &usecases.ResetPasswordInput{
+		Token:    r.FormValue("token"),
+		Password: r.FormValue("password"),
+	}
+	session, err := u.ResetPasswordUseCase.Execute(input)
 	if err != nil {
 		fmt.Println(err)
 		// TODO: Distinguish between server errors and invalid token errors.

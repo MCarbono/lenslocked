@@ -12,7 +12,6 @@ import (
 	"lenslocked/infra/database/migrations"
 	"lenslocked/infra/gateway"
 	"lenslocked/infra/http/router"
-	"lenslocked/services"
 	"lenslocked/templates"
 	"lenslocked/tokenManager"
 	"lenslocked/views"
@@ -46,23 +45,14 @@ func Start() {
 		Password: cfg.SMTP.Password,
 	})
 	tokenManager := tokenManager.New()
-	pwResetService := &services.PasswordResetService{
-		DB:                db,
-		UserRepository:    userRepository,
-		PasswordReset:     passwordResetRepository,
-		TokenManager:      tokenManager,
-		EmailGateway:      emailGateway,
-		SessionRepository: sessionRepository,
-		IDGenerator:       idGenerator,
-	}
 	usersC := controllers.Users{
-		PasswordResetService:   pwResetService,
 		CreateUserUseCase:      usecases.NewCreateUserUseCase(userRepository, idGenerator),
 		CreateSessionUseCase:   usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator),
 		SignInUseCase:          usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator),
 		SignOutUseCase:         usecases.NewSignOutUseCase(sessionRepository, tokenManager),
 		FindUserByTokenUseCase: usecases.NewFindUserByTokenUseCase(userRepository, tokenManager),
 		ForgotPasswordUseCase:  usecases.NewForgotPasswordUseCase(userRepository, passwordResetRepository, emailGateway, idGenerator, tokenManager),
+		ResetPasswordUseCase:   usecases.NewResetPasswordUseCase(userRepository, passwordResetRepository, sessionRepository, idGenerator, tokenManager),
 		Templates: struct {
 			New            controllers.Template
 			SignIn         controllers.Template
