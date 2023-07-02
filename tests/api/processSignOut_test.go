@@ -41,7 +41,6 @@ func TestProcessSignOut(t *testing.T) {
 	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
@@ -51,10 +50,12 @@ func TestProcessSignOut(t *testing.T) {
 	}
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
 	var signInUseCase = usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator)
+	var signOutUseCase = usecases.NewSignOutUseCase(sessionRepository, tokenManager)
 	var userController = controllers.Users{
 		SessionService:       sessionService,
 		CreateSessionUseCase: createSessionUseCase,
 		SignInUseCase:        signInUseCase,
+		SignOutUseCase:       signOutUseCase,
 	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
 	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})

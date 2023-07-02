@@ -25,7 +25,3 @@ func (ss *SessionService) User(token string) (*entity.User, error) {
 	}
 	return user, nil
 }
-
-func (ss *SessionService) Delete(token string) error {
-	return ss.SessionRepository.Delete(ss.TokenManager.Hash(token))
-}

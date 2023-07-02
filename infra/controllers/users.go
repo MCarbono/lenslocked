@@ -24,6 +24,7 @@ type Users struct {
 	CreateUserUseCase    *usecases.CreateUserUseCase
 	CreateSessionUseCase *usecases.CreateSessionUseCase
 	SignInUseCase        *usecases.SignInUseCase
+	SignOutUseCase       *usecases.SignOutUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +117,7 @@ func (u Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	if err = u.SessionService.Delete(token); err != nil {
+	if err = u.SignOutUseCase.Execute(token); err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
