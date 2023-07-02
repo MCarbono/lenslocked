@@ -53,7 +53,7 @@ func CreateDatabaseTest() (*sql.DB, error) {
 
 func NewRouterTest(usersC controllers.Users, galleryController controllers.Galleries) http.Handler {
 	umw := middleware.UserMiddleware{
-		SessionService: usersC.SessionService,
+		FindUserByTokenUseCase: usersC.FindUserByTokenUseCase,
 	}
 	r := chi.NewRouter()
 	r.Use(middleware.HTMLResponse)

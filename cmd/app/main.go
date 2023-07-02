@@ -39,13 +39,6 @@ func Start() {
 	userRepository := repository.NewUserRepositoryPostgres(db)
 	sessionRepository := repository.NewSessionRepositoryPostgres(db)
 	tokenManager := tokenManager.New()
-	sessionService := &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      tokenManager,
-		IDGenerator:       idGenerator,
-	}
 	pwResetService := &services.PasswordResetService{
 		DB:             db,
 		UserRepository: userRepository,
@@ -61,12 +54,12 @@ func Start() {
 		IDGenerator:       idGenerator,
 	}
 	usersC := controllers.Users{
-		SessionService:       sessionService,
-		PasswordResetService: pwResetService,
-		CreateUserUseCase:    usecases.NewCreateUserUseCase(userRepository, idGenerator),
-		CreateSessionUseCase: usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator),
-		SignInUseCase:        usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator),
-		SignOutUseCase:       usecases.NewSignOutUseCase(sessionRepository, tokenManager),
+		PasswordResetService:   pwResetService,
+		CreateUserUseCase:      usecases.NewCreateUserUseCase(userRepository, idGenerator),
+		CreateSessionUseCase:   usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator),
+		SignInUseCase:          usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator),
+		SignOutUseCase:         usecases.NewSignOutUseCase(sessionRepository, tokenManager),
+		FindUserByTokenUseCase: usecases.NewFindUserByTokenUseCase(userRepository, tokenManager),
 		Templates: struct {
 			New            controllers.Template
 			SignIn         controllers.Template

@@ -19,12 +19,12 @@ type Users struct {
 		CheckYourEmail Template
 		ResetPassword  Template
 	}
-	SessionService       *services.SessionService
-	PasswordResetService *services.PasswordResetService
-	CreateUserUseCase    *usecases.CreateUserUseCase
-	CreateSessionUseCase *usecases.CreateSessionUseCase
-	SignInUseCase        *usecases.SignInUseCase
-	SignOutUseCase       *usecases.SignOutUseCase
+	PasswordResetService   *services.PasswordResetService
+	CreateUserUseCase      *usecases.CreateUserUseCase
+	CreateSessionUseCase   *usecases.CreateSessionUseCase
+	SignInUseCase          *usecases.SignInUseCase
+	SignOutUseCase         *usecases.SignOutUseCase
+	FindUserByTokenUseCase *usecases.FindUserByTokenUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {

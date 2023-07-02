@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"lenslocked/application/usecases"
 	"lenslocked/context"
 	"lenslocked/infra/http/cookie"
-	"lenslocked/services"
 	"net/http"
 )
 
@@ -16,7 +16,7 @@ func HTMLResponse(next http.Handler) http.Handler {
 }
 
 type UserMiddleware struct {
-	SessionService *services.SessionService
+	FindUserByTokenUseCase *usecases.FindUserByTokenUseCase
 }
 
 func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
@@ -26,7 +26,7 @@ func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		user, err := umw.SessionService.User(token)
+		user, err := umw.FindUserByTokenUseCase.Execute(token)
 		if err != nil {
 			next.ServeHTTP(w, r)
 			return

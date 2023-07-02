@@ -38,26 +38,24 @@ func TestProcessResetPassword(t *testing.T) {
 	}
 	defer db.Close()
 	idGenerator := idGenerator.New()
+	tokenManager := tokenManager.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGenerator)
-	var sessionService = &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      tokenManager.New(),
-		IDGenerator:       idGenerator,
-	}
+	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 
 	var passwordResetService = &services.PasswordResetService{
-		TokenManager:      tokenManager.New(),
+		TokenManager:      tokenManager,
 		PasswordReset:     passwordResetRepository,
 		UserRepository:    userRepository,
 		SessionRepository: sessionRepository,
 		IDGenerator:       idGenerator,
 	}
-	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService}
+	var userController = controllers.Users{
+		PasswordResetService:   passwordResetService,
+		FindUserByTokenUseCase: findUserByTokenUseCase,
+	}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()

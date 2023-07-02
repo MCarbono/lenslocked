@@ -14,7 +14,7 @@ import (
 
 func New(usersC controllers.Users, galleryController controllers.Galleries, csrfKey string, csrfSecure bool) http.Handler {
 	umw := middleware.UserMiddleware{
-		SessionService: usersC.SessionService,
+		FindUserByTokenUseCase: usersC.FindUserByTokenUseCase,
 	}
 
 	csrfMw := csrf.Protect([]byte(csrfKey), csrf.Secure(csrfSecure), csrf.Path("/"))

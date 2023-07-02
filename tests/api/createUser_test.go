@@ -8,7 +8,6 @@ import (
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/services"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
@@ -43,19 +42,13 @@ func TestCreateUser(t *testing.T) {
 	tokenManager := tokenManager.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var sessionService = &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      tokenManager,
-		IDGenerator:       idGenerator,
-	}
 	var creteUserUseCase = usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
+	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 	var userController = controllers.Users{
-		SessionService:       sessionService,
-		CreateUserUseCase:    creteUserUseCase,
-		CreateSessionUseCase: createSessionUseCase,
+		CreateUserUseCase:      creteUserUseCase,
+		CreateSessionUseCase:   createSessionUseCase,
+		FindUserByTokenUseCase: findUserByTokenUseCase,
 	}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
@@ -117,7 +110,7 @@ func TestCreateUser(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			user, err := sessionService.User(token)
+			user, err := findUserByTokenUseCase.Execute(token)
 			if err != nil {
 				t.Fatal(err)
 			}

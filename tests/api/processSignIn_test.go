@@ -9,7 +9,6 @@ import (
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/services"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
@@ -44,19 +43,13 @@ func TestProcessSignIn(t *testing.T) {
 	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var sessionService = &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      tokenManager,
-		IDGenerator:       idGenerator,
-	}
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
 	var signInUseCase = usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator)
+	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 	var userController = controllers.Users{
-		SessionService:       sessionService,
-		CreateSessionUseCase: createSessionUseCase,
-		SignInUseCase:        signInUseCase,
+		CreateSessionUseCase:   createSessionUseCase,
+		SignInUseCase:          signInUseCase,
+		FindUserByTokenUseCase: findUserByTokenUseCase,
 	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGeneratorFake)
 	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
@@ -110,7 +103,7 @@ func TestProcessSignIn(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			user, err := sessionService.User(token)
+			user, err := findUserByTokenUseCase.Execute(token)
 			if err != nil {
 				t.Fatal(err)
 			}

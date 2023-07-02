@@ -8,7 +8,6 @@ import (
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/services"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
@@ -41,21 +40,15 @@ func TestProcessSignOut(t *testing.T) {
 	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var sessionService = &services.SessionService{
-		DB:                db,
-		SessionRepository: sessionRepository,
-		UserRepository:    userRepository,
-		TokenManager:      tokenManager,
-		IDGenerator:       idGenerator,
-	}
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
 	var signInUseCase = usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator)
 	var signOutUseCase = usecases.NewSignOutUseCase(sessionRepository, tokenManager)
+	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 	var userController = controllers.Users{
-		SessionService:       sessionService,
-		CreateSessionUseCase: createSessionUseCase,
-		SignInUseCase:        signInUseCase,
-		SignOutUseCase:       signOutUseCase,
+		CreateSessionUseCase:   createSessionUseCase,
+		SignInUseCase:          signInUseCase,
+		SignOutUseCase:         signOutUseCase,
+		FindUserByTokenUseCase: findUserByTokenUseCase,
 	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
 	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
@@ -118,7 +111,7 @@ func TestProcessSignOut(t *testing.T) {
 				t.Errorf("ProcessSignOut request failed with error: %v", string(body))
 				return
 			}
-			_, err = sessionService.User(token)
+			_, err = findUserByTokenUseCase.Execute(token)
 			if diff := cmp.Diff(scenario.want, err.Error()); diff != "" {
 				t.Errorf("ProcessSignOut mismatch (-want +got):\n%v", diff)
 			}
