@@ -71,6 +71,7 @@ func Start() {
 		PasswordResetService: pwResetService,
 		CreateUserUseCase:    usecases.NewCreateUserUseCase(userRepository, idGenerator),
 		CreateSessionUseCase: usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator),
+		SignInUseCase:        usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator),
 		Templates: struct {
 			New            controllers.Template
 			SignIn         controllers.Template

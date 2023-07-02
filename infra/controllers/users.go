@@ -24,6 +24,7 @@ type Users struct {
 	PasswordResetService *services.PasswordResetService
 	CreateUserUseCase    *usecases.CreateUserUseCase
 	CreateSessionUseCase *usecases.CreateSessionUseCase
+	SignInUseCase        *usecases.SignInUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -74,19 +75,11 @@ func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		Email    string
-		Password string
+	signInInput := &usecases.SignInInput{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
 	}
-	data.Email = r.FormValue("email")
-	data.Password = r.FormValue("password")
-	user, err := u.UserService.Authenticate(data.Email, data.Password)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-	session, err := u.CreateSessionUseCase.Execute(user.ID)
+	session, err := u.SignInUseCase.Execute(signInInput)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)

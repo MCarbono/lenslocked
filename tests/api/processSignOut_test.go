@@ -53,10 +53,12 @@ func TestProcessSignOut(t *testing.T) {
 		IDGenerator:       idGenerator,
 	}
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
+	var signInUseCase = usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator)
 	var userController = controllers.Users{
 		UserService:          userService,
 		SessionService:       sessionService,
 		CreateSessionUseCase: createSessionUseCase,
+		SignInUseCase:        signInUseCase,
 	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
 	_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
