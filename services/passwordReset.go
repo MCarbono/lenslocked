@@ -7,24 +7,10 @@ import (
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
-	"lenslocked/rand"
 	"lenslocked/tokenManager"
-	"net/url"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-)
-
-const (
-	// DefaultResetDuration is the default time that a PasswordReset is
-	// valid for.
-	DefaultResetDuration = 1 * time.Hour
-)
-
-const (
-	//DefaultSender is the default email address to send emails from.
-	DefaultSender = "support@lenslocked.com"
 )
 
 type PasswordResetService struct {
@@ -43,58 +29,6 @@ type PasswordResetService struct {
 	EmailGateway      gateway.EmailProvider
 	SessionRepository repository.SessionRepository
 	idGenerator.IDGenerator
-}
-
-func (service *PasswordResetService) Create(email, resetPasswordURL string) (*entity.PasswordReset, error) {
-	email = strings.ToLower(email)
-	user, err := service.UserRepository.FindByEmail(email)
-	if err != nil {
-		//TODO: Consider returning a specific erroe when the user does not exist.
-		return nil, fmt.Errorf("create: %w", err)
-	}
-	//Build the passwordReset
-	bytesPerToken := service.BytesPerToken
-	if bytesPerToken == 0 {
-		bytesPerToken = tokenManager.MIN_BYTES_PER_TOKEN
-	}
-	token, err := rand.String(bytesPerToken)
-	if err != nil {
-		return nil, fmt.Errorf("create: %w", err)
-	}
-	tokenHash := service.TokenManager.Hash(token)
-	duration := service.Duration
-	if duration == 0 {
-		duration = DefaultResetDuration
-	}
-	passwordReset := entity.NewPasswordReset(service.Generate(), user.ID, token, tokenHash, duration)
-	err = service.PasswordReset.Create(passwordReset)
-	if err != nil {
-		return nil, fmt.Errorf("create: %w", err)
-	}
-
-	vals := url.Values{
-		"token": {passwordReset.Token},
-	}
-	err = service.forgotPassword(user.Email, resetPasswordURL+vals.Encode())
-	if err != nil {
-		//deletar o password_reset caso de erro
-		return nil, fmt.Errorf("forgot password email: %w", err)
-	}
-	return passwordReset, nil
-}
-
-func (us *PasswordResetService) forgotPassword(to, resetURL string) error {
-	email := entity.NewEmail(
-		DefaultSender,
-		to,
-		"Reset your password",
-		"To reset your password, please visit the following link: "+resetURL,
-		`<p>To reset your password, please visit the following link: <a href="`+resetURL+`">`+resetURL+`</a></p>`,
-	)
-	if err := us.EmailGateway.Send(email); err != nil {
-		return fmt.Errorf("forgot password email: %w", err)
-	}
-	return nil
 }
 
 // We are going to consume a token and return the session associated with it, or return an error if the token wasn't valid for any reason.

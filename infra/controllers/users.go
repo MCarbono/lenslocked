@@ -25,6 +25,7 @@ type Users struct {
 	SignInUseCase          *usecases.SignInUseCase
 	SignOutUseCase         *usecases.SignOutUseCase
 	FindUserByTokenUseCase *usecases.FindUserByTokenUseCase
+	ForgotPasswordUseCase  *usecases.ForgotPasswordUseCase
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -135,17 +136,17 @@ func (u Users) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) ProcessForgotPassword(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		Email string
+	input := &usecases.ForgotPasswordInput{
+		Email:            r.FormValue("email"),
+		ResetPasswordURL: "http://localhost:3000/reset-pw?",
 	}
-	data.Email = r.FormValue("email")
-	_, err := u.PasswordResetService.Create(data.Email, "http://localhost:3000/reset-pw?")
+	_, err := u.ForgotPasswordUseCase.Execute(input)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	u.Templates.CheckYourEmail.Execute(w, r, data)
+	u.Templates.CheckYourEmail.Execute(w, r, input)
 }
 
 func (u Users) ResetPassword(w http.ResponseWriter, r *http.Request) {

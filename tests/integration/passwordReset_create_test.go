@@ -6,7 +6,6 @@ import (
 	"lenslocked/gen/mock"
 	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/services"
 	"lenslocked/tests/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
@@ -34,22 +33,15 @@ func TestCreatePasswordReset(t *testing.T) {
 	defer db.Close()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
-	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, fakes.NewIDGeneratorFake())
-
-	var passwordResetService = &services.PasswordResetService{
-		TokenManager:   tokenManager.New(),
-		UserRepository: userRepository,
-		PasswordReset:  passwordResetRepository,
-		IDGenerator:    idGenerator.New(),
-	}
+	idGeneratorFake := fakes.NewIDGeneratorFake()
+	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGeneratorFake)
 
 	type mockFields struct {
 		mockEmailProvider *mock.MockEmailProvider
 	}
 
 	type args struct {
-		email            string
-		passwordResetURL string
+		input *usecases.ForgotPasswordInput
 	}
 
 	type test struct {
@@ -61,8 +53,10 @@ func TestCreatePasswordReset(t *testing.T) {
 		{
 			name: "Should create a password reset and send an email to the user",
 			args: args{
-				email:            "teste@email.com",
-				passwordResetURL: "http://localhost:3000/reset-pw?",
+				input: &usecases.ForgotPasswordInput{
+					Email:            "teste@email.com",
+					ResetPasswordURL: "http://localhost:3000/reset-pw?",
+				},
 			},
 			mocks: func(f *mockFields) {
 				f.mockEmailProvider.EXPECT().Send(gomock.Any()).Return(nil).Times(1)
@@ -78,12 +72,18 @@ func TestCreatePasswordReset(t *testing.T) {
 				mockEmailProvider: mock.NewMockEmailProvider(mockCtrl),
 			}
 			scenario.mocks(&f)
-			passwordResetService.EmailGateway = f.mockEmailProvider
+			forgotPasswordUseCase := usecases.NewForgotPasswordUseCase(
+				userRepository,
+				passwordResetRepository,
+				f.mockEmailProvider,
+				idGenerator.New(),
+				tokenManager.New(),
+			)
 			_, err = createUserUseCase.Execute(&usecases.CreateUserInput{Email: "teste@email.com", Password: "password"})
 			if err != nil {
 				t.Fatal(err)
 			}
-			got, err := passwordResetService.Create(scenario.args.email, scenario.args.passwordResetURL)
+			got, err := forgotPasswordUseCase.Execute(scenario.args.input)
 			if err != nil {
 				t.Fatal(err)
 			}

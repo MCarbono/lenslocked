@@ -38,18 +38,20 @@ func Start() {
 	idGenerator := idGenerator.New()
 	userRepository := repository.NewUserRepositoryPostgres(db)
 	sessionRepository := repository.NewSessionRepositoryPostgres(db)
+	passwordResetRepository := repository.NewPasswordResetPostgres(db)
+	emailGateway := gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
+		Host:     cfg.SMTP.Host,
+		Port:     cfg.SMTP.Port,
+		Username: cfg.SMTP.Username,
+		Password: cfg.SMTP.Password,
+	})
 	tokenManager := tokenManager.New()
 	pwResetService := &services.PasswordResetService{
-		DB:             db,
-		UserRepository: userRepository,
-		PasswordReset:  repository.NewPasswordResetPostgres(db),
-		TokenManager:   tokenManager,
-		EmailGateway: gateway.NewEmailMailtrapGateway(gateway.SMTPConfig{
-			Host:     cfg.SMTP.Host,
-			Port:     cfg.SMTP.Port,
-			Username: cfg.SMTP.Username,
-			Password: cfg.SMTP.Password,
-		}),
+		DB:                db,
+		UserRepository:    userRepository,
+		PasswordReset:     passwordResetRepository,
+		TokenManager:      tokenManager,
+		EmailGateway:      emailGateway,
 		SessionRepository: sessionRepository,
 		IDGenerator:       idGenerator,
 	}
@@ -60,6 +62,7 @@ func Start() {
 		SignInUseCase:          usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator),
 		SignOutUseCase:         usecases.NewSignOutUseCase(sessionRepository, tokenManager),
 		FindUserByTokenUseCase: usecases.NewFindUserByTokenUseCase(userRepository, tokenManager),
+		ForgotPasswordUseCase:  usecases.NewForgotPasswordUseCase(userRepository, passwordResetRepository, emailGateway, idGenerator, tokenManager),
 		Templates: struct {
 			New            controllers.Template
 			SignIn         controllers.Template
