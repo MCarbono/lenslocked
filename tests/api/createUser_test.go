@@ -43,10 +43,6 @@ func TestCreateUser(t *testing.T) {
 	tokenManager := tokenManager.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-		IDGenerator:    idGenerator,
-	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
@@ -57,7 +53,6 @@ func TestCreateUser(t *testing.T) {
 	var creteUserUseCase = usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
 	var userController = controllers.Users{
-		UserService:          userService,
 		SessionService:       sessionService,
 		CreateUserUseCase:    creteUserUseCase,
 		CreateSessionUseCase: createSessionUseCase,

@@ -19,7 +19,6 @@ type Users struct {
 		CheckYourEmail Template
 		ResetPassword  Template
 	}
-	UserService          *services.UserService
 	SessionService       *services.SessionService
 	PasswordResetService *services.PasswordResetService
 	CreateUserUseCase    *usecases.CreateUserUseCase

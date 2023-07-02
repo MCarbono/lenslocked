@@ -22,6 +22,11 @@ const (
 	DefaultResetDuration = 1 * time.Hour
 )
 
+const (
+	//DefaultSender is the default email address to send emails from.
+	DefaultSender = "support@lenslocked.com"
+)
+
 type PasswordResetService struct {
 	DB *sql.DB
 	// BytesPerToken is used to determine how many bytes to use when generating

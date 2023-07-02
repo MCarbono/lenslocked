@@ -41,10 +41,6 @@ func TestProcessResetPassword(t *testing.T) {
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
 	var passwordResetRepository = repository.NewPasswordResetSQLite(db)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-		IDGenerator:    idGenerator,
-	}
 	createUserUseCase := usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var sessionService = &services.SessionService{
 		DB:                db,
@@ -61,7 +57,7 @@ func TestProcessResetPassword(t *testing.T) {
 		SessionRepository: sessionRepository,
 		IDGenerator:       idGenerator,
 	}
-	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService, UserService: userService}
+	var userController = controllers.Users{PasswordResetService: passwordResetService, SessionService: sessionService}
 	r := testinfra.NewRouterTest(userController, controllers.Galleries{})
 	ts := httptest.NewServer(r)
 	defer ts.Close()

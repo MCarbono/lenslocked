@@ -39,11 +39,6 @@ func Start() {
 	userRepository := repository.NewUserRepositoryPostgres(db)
 	sessionRepository := repository.NewSessionRepositoryPostgres(db)
 	tokenManager := tokenManager.New()
-	userService := &services.UserService{
-		UserRepository: userRepository,
-		DB:             db,
-		IDGenerator:    idGenerator,
-	}
 	sessionService := &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
@@ -66,7 +61,6 @@ func Start() {
 		IDGenerator:       idGenerator,
 	}
 	usersC := controllers.Users{
-		UserService:          userService,
 		SessionService:       sessionService,
 		PasswordResetService: pwResetService,
 		CreateUserUseCase:    usecases.NewCreateUserUseCase(userRepository, idGenerator),

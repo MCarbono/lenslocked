@@ -44,10 +44,6 @@ func TestProcessSignIn(t *testing.T) {
 	idGenerator := idGenerator.New()
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
-	var userService = &services.UserService{
-		UserRepository: userRepository,
-		IDGenerator:    idGeneratorFake,
-	}
 	var sessionService = &services.SessionService{
 		DB:                db,
 		SessionRepository: sessionRepository,
@@ -58,7 +54,6 @@ func TestProcessSignIn(t *testing.T) {
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
 	var signInUseCase = usecases.NewSignInUseCase(sessionRepository, userRepository, tokenManager, idGenerator)
 	var userController = controllers.Users{
-		UserService:          userService,
 		SessionService:       sessionService,
 		CreateSessionUseCase: createSessionUseCase,
 		SignInUseCase:        signInUseCase,
