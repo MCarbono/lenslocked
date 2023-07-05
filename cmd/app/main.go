@@ -70,7 +70,7 @@ func Start() {
 	}
 
 	galleryRepository := repository.NewGalleryRepositoryPostgres(db)
-	imageRepository := repositoryDisk.NewImageRepositoryDisk("images")
+	imageRepository := repositoryDisk.NewImageRepositoryDisk("images", []string{".png", ".jpg", ".jpeg", ".gif"})
 	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
 	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
 	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository)

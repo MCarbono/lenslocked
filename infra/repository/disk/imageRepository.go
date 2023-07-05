@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"io/fs"
 	"lenslocked/domain/entity"
-	"net/url"
 	"os"
 	"path/filepath"
 )
 
 type ImageRepositoryDisk struct {
-	path string
+	path       string
+	extensions []string
 }
 
-func NewImageRepositoryDisk(path string) *ImageRepositoryDisk {
+func NewImageRepositoryDisk(path string, extensions []string) *ImageRepositoryDisk {
 	return &ImageRepositoryDisk{
-		path: path,
+		path:       path,
+		extensions: extensions,
 	}
 }
 
@@ -33,12 +34,7 @@ func (r *ImageRepositoryDisk) FindOne(galleryID, filename string) (*entity.Image
 		}
 		return nil, fmt.Errorf("querying for image: %w", err)
 	}
-	return &entity.Image{
-		Filename:        filename,
-		GalleryID:       galleryID,
-		Path:            imagePath,
-		FilenameEscaped: url.PathEscape(filepath.Base(filename)),
-	}, nil
+	return entity.NewImage(galleryID, imagePath, filename), nil
 }
 
 func (r *ImageRepositoryDisk) galleryDir(galleryID string) string {

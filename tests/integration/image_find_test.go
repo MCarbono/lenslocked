@@ -21,7 +21,7 @@ func TestFindGalleries(t *testing.T) {
 		want *entity.Image
 	}
 
-	var imageRepository = repository.NewImageRepositoryDisk("../assets/images/")
+	var imageRepository = repository.NewImageRepositoryDisk("../assets/images/", []string{".png", ".jpg", ".jpeg", ".gif"})
 	var findImageUseCase = usecases.NewFindImageUseCase(imageRepository)
 
 	tests := []test{

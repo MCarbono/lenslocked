@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
-	"net/url"
 	"path/filepath"
 	"strings"
 )
@@ -33,12 +32,7 @@ func (uc *FindGalleryUseCase) Execute(ID string) (*entity.Gallery, error) {
 	var images []*entity.Image
 	for _, file := range allFiles {
 		if uc.hasExtension(file, uc.extensions()) {
-			images = append(images, &entity.Image{
-				Path:            file,
-				GalleryID:       gallery.ID,
-				Filename:        filepath.Base(file),
-				FilenameEscaped: url.PathEscape(filepath.Base(file)),
-			})
+			images = append(images, entity.NewImage(gallery.ID, file, filepath.Base(file)))
 		}
 	}
 	gallery.AddImages(images)
