@@ -81,6 +81,7 @@ func Start() {
 		FindGalleryUseCase:   findGalleryUseCase,
 		FindGalleriesUseCase: findGalleriesUseCase,
 		DeleteGalleryUseCase: deleteGalleryUseCase,
+		FindImageUseCase:     usecases.NewFindImageUseCase(),
 		Templates: struct {
 			Show  controllers.Template
 			New   controllers.Template
