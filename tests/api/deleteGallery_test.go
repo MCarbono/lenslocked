@@ -43,7 +43,7 @@ func TestDeleteGallery(t *testing.T) {
 	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
-	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
+	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository, nil)
 	var deleteGalleryUseCase = usecases.NewDeleteGalleryUseCase(galleryRepository)
 	var findGalleriesUseCase = usecases.NewFindGalleriesUseCase(galleryRepository)
 

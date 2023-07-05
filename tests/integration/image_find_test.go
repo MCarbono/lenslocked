@@ -28,12 +28,12 @@ func TestFindGalleries(t *testing.T) {
 		{
 			name: "Should find an image",
 			args: args{
-				GalleryID: "fakeUUID",
+				GalleryID: "fakeUUIDImages",
 				Filename:  "IMG_9897.jpg",
 			},
 			want: &entity.Image{
-				GalleryID:       "fakeUUID",
-				Path:            "../assets/images/gallery-fakeUUID/IMG_9897.jpg",
+				GalleryID:       "fakeUUIDImages",
+				Path:            "../assets/images/gallery-fakeUUIDImages/IMG_9897.jpg",
 				Filename:        "IMG_9897.jpg",
 				FilenameEscaped: "IMG_9897.jpg",
 			},
@@ -41,12 +41,12 @@ func TestFindGalleries(t *testing.T) {
 		{
 			name: "Should find an image with an '?' character and should escape it",
 			args: args{
-				GalleryID: "fakeUUID",
+				GalleryID: "fakeUUIDImages",
 				Filename:  "IMG_4?89.png",
 			},
 			want: &entity.Image{
-				GalleryID:       "fakeUUID",
-				Path:            "../assets/images/gallery-fakeUUID/IMG_4?89.png",
+				GalleryID:       "fakeUUIDImages",
+				Path:            "../assets/images/gallery-fakeUUIDImages/IMG_4?89.png",
 				Filename:        "IMG_4?89.png",
 				FilenameEscaped: "IMG_4%3F89.png",
 			},

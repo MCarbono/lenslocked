@@ -7,6 +7,7 @@ import (
 	"lenslocked/domain/entity"
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
+	repositoryDisk "lenslocked/infra/repository/disk"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/assets/testinfra"
@@ -41,11 +42,12 @@ func TestCreateGallery(t *testing.T) {
 	var userRepository = repository.NewUserRepositorySQLite(db)
 	var galleryRepository = repository.NewGalleryRepositorySQLite(db)
 	var sessionRepository = repository.NewSessionRepositorySQLite(db)
+	var imageRepository = repositoryDisk.NewImageRepositoryDisk("../assets/images/", []string{".png", ".jpg", ".jpeg", ".gif"})
 	var creteUserUseCase = usecases.NewCreateUserUseCase(userRepository, idGenerator)
 	var findUserByTokenUseCase = usecases.NewFindUserByTokenUseCase(userRepository, tokenManager)
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
 	var createSessionUseCase = usecases.NewCreateSessionUseCase(sessionRepository, tokenManager, idGenerator)
-	var findGalleriesUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
+	var findGalleriesUseCase = usecases.NewFindGalleryUseCase(galleryRepository, imageRepository)
 	var userController = controllers.Users{
 		CreateUserUseCase:      creteUserUseCase,
 		FindUserByTokenUseCase: findUserByTokenUseCase,

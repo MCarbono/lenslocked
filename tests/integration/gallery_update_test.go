@@ -3,6 +3,7 @@ package integration
 import (
 	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
+	repositoryDisk "lenslocked/infra/repository/disk"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/assets/testinfra"
@@ -26,9 +27,10 @@ func TestUpdateGallery(t *testing.T) {
 	}
 	defer db.Close()
 	var galleryRepository = repository.NewGalleryRepositorySQLite(db)
+	var imageRepository = repositoryDisk.NewImageRepositoryDisk("../assets/images/", []string{".png", ".jpg", ".jpeg", ".gif"})
 	var createGalleryUseCase = usecases.NewCreateGalleryUseCase(galleryRepository, fakes.NewIDGeneratorFake())
 	var updateGalleryUseCase = usecases.NewUpdateGalleryUseCase(galleryRepository)
-	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository)
+	var findGalleryUseCase = usecases.NewFindGalleryUseCase(galleryRepository, imageRepository)
 
 	type test struct {
 		name               string
