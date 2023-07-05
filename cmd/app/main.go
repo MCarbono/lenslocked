@@ -71,18 +71,12 @@ func Start() {
 
 	galleryRepository := repository.NewGalleryRepositoryPostgres(db)
 	imageRepository := repositoryDisk.NewImageRepositoryDisk("images", []string{".png", ".jpg", ".jpeg", ".gif"})
-	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
-	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
-	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository, imageRepository)
-	findGalleriesUseCase := usecases.NewFindGalleriesUseCase(galleryRepository)
-	deleteGalleryUseCase := usecases.NewDeleteGalleryUseCase(galleryRepository)
-
 	galleryController := controllers.Galleries{
-		CreateGalleryUseCase: createGalleryUseCase,
-		UpdateGalleryUseCase: updateGalleryUseCase,
-		FindGalleryUseCase:   findGalleryUseCase,
-		FindGalleriesUseCase: findGalleriesUseCase,
-		DeleteGalleryUseCase: deleteGalleryUseCase,
+		CreateGalleryUseCase: usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator),
+		UpdateGalleryUseCase: usecases.NewUpdateGalleryUseCase(galleryRepository),
+		FindGalleryUseCase:   usecases.NewFindGalleryUseCase(galleryRepository, imageRepository),
+		FindGalleriesUseCase: usecases.NewFindGalleriesUseCase(galleryRepository),
+		DeleteGalleryUseCase: usecases.NewDeleteGalleryUseCase(galleryRepository),
 		FindImageUseCase:     usecases.NewFindImageUseCase(imageRepository),
 		Templates: struct {
 			Show  controllers.Template
