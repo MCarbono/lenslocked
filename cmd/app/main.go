@@ -73,7 +73,7 @@ func Start() {
 	imageRepository := repositoryDisk.NewImageRepositoryDisk("images", []string{".png", ".jpg", ".jpeg", ".gif"})
 	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
 	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
-	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository)
+	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository, imageRepository)
 	findGalleriesUseCase := usecases.NewFindGalleriesUseCase(galleryRepository)
 	deleteGalleryUseCase := usecases.NewDeleteGalleryUseCase(galleryRepository)
 
