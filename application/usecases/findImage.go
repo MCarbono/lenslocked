@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"lenslocked/domain/entity"
+	"net/url"
 	"os"
 	"path/filepath"
 )
@@ -24,12 +25,13 @@ func (uc *FindImageUseCase) Execute(galleryID, filename string) (*entity.Image, 
 		if errors.Is(err, fs.ErrNotExist) {
 			return nil, err
 		}
-		return nil, fmt.Errorf("querying  for image: %w", err)
+		return nil, fmt.Errorf("querying for image: %w", err)
 	}
 	return &entity.Image{
-		Filename:  filename,
-		GalleryID: galleryID,
-		Path:      imagePath,
+		Filename:        filename,
+		GalleryID:       galleryID,
+		Path:            imagePath,
+		FilenameEscaped: url.PathEscape(filepath.Base(filename)),
 	}, nil
 }
 
