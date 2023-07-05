@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestFindGalleries(t *testing.T) {
+func TestFindImage(t *testing.T) {
 	t.Cleanup(func() {
 		cmd := exec.Command("rm", "../lenslocked_test.db")
 		err := cmd.Run()
@@ -38,7 +38,7 @@ func TestFindGalleries(t *testing.T) {
 
 	tests := []test{
 		{
-			name: "Should create two galleries and return find it",
+			name: "Should create two galleries and return it",
 			input: []*usecases.CreateGalleryInput{
 				{
 					Title:  "Gallery fake test one",
