@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"lenslocked/application/usecases"
 	"lenslocked/context"
-	"math/rand"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -22,6 +21,7 @@ type Galleries struct {
 	*usecases.FindGalleryUseCase
 	*usecases.FindGalleriesUseCase
 	*usecases.DeleteGalleryUseCase
+	*usecases.FindImageUseCase
 }
 
 func (g Galleries) New(w http.ResponseWriter, r *http.Request) {
@@ -106,19 +106,19 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	var data struct {
-		ID     string
-		Title  string
-		Images []string
-	}
-	data.ID = gallery.ID
-	data.Title = gallery.Title
-	for i := 0; i < 20; i++ {
-		w, h := rand.Intn(500)+200, rand.Intn(500)+200
-		catImageURL := fmt.Sprintf("https://placekitten.com/%d/%d", w, h)
-		data.Images = append(data.Images, catImageURL)
-	}
-	g.Templates.Show.Execute(w, r, data)
+	// var data struct {
+	// 	ID     string
+	// 	Title  string
+	// 	Images []string
+	// }
+	// data.ID = gallery.ID
+	// data.Title = gallery.Title
+	// for i := 0; i < 20; i++ {
+	// 	w, h := rand.Intn(500)+200, rand.Intn(500)+200
+	// 	catImageURL := fmt.Sprintf("https://placekitten.com/%d/%d", w, h)
+	// 	data.Images = append(data.Images, catImageURL)
+	// }
+	g.Templates.Show.Execute(w, r, gallery)
 }
 
 func (g Galleries) Delete(w http.ResponseWriter, r *http.Request) {
@@ -128,4 +128,16 @@ func (g Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/galleries", http.StatusFound)
+}
+
+func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
+	filename := chi.URLParam(r, "filename")
+	galleryID := chi.URLParam(r, "id")
+
+	image, err := g.FindImageUseCase.Execute(galleryID, filename)
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	http.ServeFile(w, r, image.Path)
 }
