@@ -11,7 +11,7 @@ import (
 )
 
 type FindImageUseCase struct {
-	imagesDir string
+	ImagesDir string
 }
 
 func NewFindImageUseCase() *FindImageUseCase {
@@ -36,7 +36,7 @@ func (uc *FindImageUseCase) Execute(galleryID, filename string) (*entity.Image, 
 }
 
 func (uc *FindImageUseCase) galleryDir(ID string) string {
-	imagesDir := uc.imagesDir
+	imagesDir := uc.ImagesDir
 	if imagesDir == "" {
 		imagesDir = "images"
 	}
