@@ -1,7 +1,8 @@
 package entity
 
 type Image struct {
-	GalleryID string
-	Path      string
-	Filename  string
+	GalleryID       string
+	Path            string
+	Filename        string
+	FilenameEscaped string
 }
