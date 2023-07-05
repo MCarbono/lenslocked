@@ -1,44 +1,20 @@
 package usecases
 
 import (
-	"errors"
-	"fmt"
-	"io/fs"
+	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
-	"net/url"
-	"os"
-	"path/filepath"
 )
 
 type FindImageUseCase struct {
-	ImagesDir string
+	imageRepository repository.ImagesRepository
 }
 
-func NewFindImageUseCase() *FindImageUseCase {
-	return &FindImageUseCase{}
+func NewFindImageUseCase(imageRepository repository.ImagesRepository) *FindImageUseCase {
+	return &FindImageUseCase{
+		imageRepository: imageRepository,
+	}
 }
 
 func (uc *FindImageUseCase) Execute(galleryID, filename string) (*entity.Image, error) {
-	imagePath := filepath.Join(uc.galleryDir(galleryID), filename)
-	_, err := os.Stat(imagePath)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil, err
-		}
-		return nil, fmt.Errorf("querying for image: %w", err)
-	}
-	return &entity.Image{
-		Filename:        filename,
-		GalleryID:       galleryID,
-		Path:            imagePath,
-		FilenameEscaped: url.PathEscape(filepath.Base(filename)),
-	}, nil
-}
-
-func (uc *FindImageUseCase) galleryDir(ID string) string {
-	imagesDir := uc.ImagesDir
-	if imagesDir == "" {
-		imagesDir = "images"
-	}
-	return filepath.Join(imagesDir, fmt.Sprintf("gallery-%s", ID))
+	return uc.imageRepository.FindOne(galleryID, filename)
 }

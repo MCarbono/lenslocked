@@ -3,6 +3,7 @@ package integration
 import (
 	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
+	repository "lenslocked/infra/repository/disk"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -20,8 +21,8 @@ func TestFindGalleries(t *testing.T) {
 		want *entity.Image
 	}
 
-	var findImageUseCase = usecases.NewFindImageUseCase()
-	findImageUseCase.ImagesDir = "../assets/images/"
+	var imageRepository = repository.NewImageRepositoryDisk("../assets/images/")
+	var findImageUseCase = usecases.NewFindImageUseCase(imageRepository)
 
 	tests := []test{
 		{

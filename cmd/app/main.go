@@ -12,6 +12,7 @@ import (
 	"lenslocked/infra/database/migrations"
 	"lenslocked/infra/gateway"
 	"lenslocked/infra/http/router"
+	repositoryDisk "lenslocked/infra/repository/disk"
 	"lenslocked/templates"
 	"lenslocked/tokenManager"
 	"lenslocked/views"
@@ -69,6 +70,7 @@ func Start() {
 	}
 
 	galleryRepository := repository.NewGalleryRepositoryPostgres(db)
+	imageRepository := repositoryDisk.NewImageRepositoryDisk("images")
 	createGalleryUseCase := usecases.NewCreateGalleryUseCase(galleryRepository, idGenerator)
 	updateGalleryUseCase := usecases.NewUpdateGalleryUseCase(galleryRepository)
 	findGalleryUseCase := usecases.NewFindGalleryUseCase(galleryRepository)
@@ -81,7 +83,7 @@ func Start() {
 		FindGalleryUseCase:   findGalleryUseCase,
 		FindGalleriesUseCase: findGalleriesUseCase,
 		DeleteGalleryUseCase: deleteGalleryUseCase,
-		FindImageUseCase:     usecases.NewFindImageUseCase(),
+		FindImageUseCase:     usecases.NewFindImageUseCase(imageRepository),
 		Templates: struct {
 			Show  controllers.Template
 			New   controllers.Template
