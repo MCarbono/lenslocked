@@ -4,6 +4,7 @@ type Gallery struct {
 	ID     string
 	UserID string
 	Title  string
+	Images []*Image
 }
 
 func NewGallery(ID, userID, title string) *Gallery {
@@ -22,4 +23,8 @@ func (g *Gallery) Update(title string) {
 
 func (g *Gallery) IsOwnedBy(userID string) bool {
 	return g.UserID == userID
+}
+
+func (g *Gallery) AddImages(images []*Image) {
+	g.Images = images
 }
