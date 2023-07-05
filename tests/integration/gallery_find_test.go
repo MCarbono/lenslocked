@@ -5,7 +5,7 @@ import (
 	"lenslocked/domain/entity"
 	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/tests/testinfra"
+	"lenslocked/tests/assets/testinfra"
 	"os/exec"
 	"testing"
 

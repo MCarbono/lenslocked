@@ -7,7 +7,7 @@ import (
 	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/tests/assets/fakes"
-	"lenslocked/tests/testinfra"
+	"lenslocked/tests/assets/testinfra"
 	"lenslocked/tokenManager"
 	"os/exec"
 	"testing"

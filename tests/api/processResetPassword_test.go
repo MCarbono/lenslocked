@@ -9,7 +9,7 @@ import (
 	"lenslocked/infra/controllers"
 	repository "lenslocked/infra/repository/sqlite"
 	"lenslocked/rand"
-	"lenslocked/tests/testinfra"
+	"lenslocked/tests/assets/testinfra"
 	"lenslocked/tokenManager"
 	"net/http"
 	"net/http/cookiejar"
