@@ -58,6 +58,7 @@ func New(usersC controllers.Users, galleryController controllers.Galleries, csrf
 	//Gallery
 	r.Route("/galleries", func(r chi.Router) {
 		r.Get("/{id}", galleryController.Show)
+		r.Get("/{id}/images/{filename}", galleryController.Image)
 		r.Group(func(r chi.Router) {
 			r.Use(umw.RequireUser)
 			r.Get("/", galleryController.Index)
