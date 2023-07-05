@@ -133,7 +133,6 @@ func (g Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 	filename := chi.URLParam(r, "filename")
 	galleryID := chi.URLParam(r, "id")
-
 	image, err := g.FindImageUseCase.Execute(galleryID, filename)
 	if err != nil {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
