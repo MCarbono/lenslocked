@@ -3,7 +3,7 @@ package integration
 import (
 	"lenslocked/application/usecases"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/tests/fakes"
+	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/testinfra"
 	"os/exec"
 	"testing"

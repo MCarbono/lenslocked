@@ -4,7 +4,7 @@ import (
 	"lenslocked/application/usecases"
 	"lenslocked/domain/entity"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/tests/fakes"
+	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/testinfra"
 	"os/exec"
 	"testing"

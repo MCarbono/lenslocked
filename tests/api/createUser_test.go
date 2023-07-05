@@ -8,7 +8,7 @@ import (
 	"lenslocked/infra/controllers"
 	"lenslocked/infra/http/cookie"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/tests/fakes"
+	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
 	"net/http"

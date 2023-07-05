@@ -6,7 +6,7 @@ import (
 	"lenslocked/gen/mock"
 	"lenslocked/idGenerator"
 	repository "lenslocked/infra/repository/sqlite"
-	"lenslocked/tests/fakes"
+	"lenslocked/tests/assets/fakes"
 	"lenslocked/tests/testinfra"
 	"lenslocked/tokenManager"
 	"os/exec"
