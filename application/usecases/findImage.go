@@ -6,10 +6,10 @@ import (
 )
 
 type FindImageUseCase struct {
-	imageRepository repository.ImagesRepository
+	imageRepository repository.ImageRepository
 }
 
-func NewFindImageUseCase(imageRepository repository.ImagesRepository) *FindImageUseCase {
+func NewFindImageUseCase(imageRepository repository.ImageRepository) *FindImageUseCase {
 	return &FindImageUseCase{
 		imageRepository: imageRepository,
 	}
