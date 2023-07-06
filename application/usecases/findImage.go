@@ -3,6 +3,7 @@ package usecases
 import (
 	"lenslocked/application/repository"
 	"lenslocked/domain/entity"
+	"path/filepath"
 )
 
 type FindImageUseCase struct {
@@ -16,5 +17,5 @@ func NewFindImageUseCase(imageRepository repository.ImageRepository) *FindImageU
 }
 
 func (uc *FindImageUseCase) Execute(galleryID, filename string) (*entity.Image, error) {
-	return uc.imageRepository.FindOne(galleryID, filename)
+	return uc.imageRepository.FindOne(galleryID, filepath.Base(filename))
 }

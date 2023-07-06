@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"lenslocked/application/repository"
+	"path/filepath"
 )
 
 type DeleteImageUseCase struct {
@@ -15,5 +16,5 @@ func NewDeleteImageUseCase(imageRepository repository.ImageRepository) *DeleteIm
 }
 
 func (uc *DeleteImageUseCase) Execute(galleryID, filename string) error {
-	return uc.imageRepository.DeleteOne(galleryID, filename)
+	return uc.imageRepository.DeleteOne(galleryID, filepath.Base(filename))
 }
