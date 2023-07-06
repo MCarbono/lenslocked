@@ -22,6 +22,7 @@ type Galleries struct {
 	*usecases.FindGalleriesUseCase
 	*usecases.DeleteGalleryUseCase
 	*usecases.FindImageUseCase
+	*usecases.DeleteImageUseCase
 }
 
 func (g Galleries) New(w http.ResponseWriter, r *http.Request) {
@@ -139,4 +140,16 @@ func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.ServeFile(w, r, image.Path)
+}
+
+func (g Galleries) DeleteImage(w http.ResponseWriter, r *http.Request) {
+	filename := chi.URLParam(r, "filename")
+	id := chi.URLParam(r, "id")
+	err := g.DeleteImageUseCase.Execute(id, filename)
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	editPath := fmt.Sprintf("/galleries/%s/edit", id)
+	http.Redirect(w, r, editPath, http.StatusFound)
 }

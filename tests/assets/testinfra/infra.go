@@ -113,6 +113,7 @@ func NewRouterTest(usersC controllers.Users, galleryController controllers.Galle
 			r.Get("/{id}/edit", galleryController.Edit)
 			r.Post("/{id}", galleryController.Update)
 			r.Post("/{id}/delete", galleryController.Delete)
+			r.Post("/{id}/images/{filename}/delete", galleryController.DeleteImage)
 		})
 	})
 	return r

@@ -78,6 +78,7 @@ func Start() {
 		FindGalleriesUseCase: usecases.NewFindGalleriesUseCase(galleryRepository),
 		DeleteGalleryUseCase: usecases.NewDeleteGalleryUseCase(galleryRepository),
 		FindImageUseCase:     usecases.NewFindImageUseCase(imageRepository),
+		DeleteImageUseCase:   usecases.NewDeleteImageUseCase(imageRepository),
 		Templates: struct {
 			Show  controllers.Template
 			New   controllers.Template
