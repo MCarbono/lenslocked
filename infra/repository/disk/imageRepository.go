@@ -49,6 +49,15 @@ func (r *ImageRepositoryDisk) FindOne(galleryID, filename string) (*entity.Image
 	return entity.NewImage(galleryID, imagePath, filename), nil
 }
 
+func (r *ImageRepositoryDisk) DeleteOne(galleryID, filename string) error {
+	imagePath := filepath.Join(r.galleryDir(galleryID), filename)
+	err := os.Remove(imagePath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ImageRepositoryDisk) galleryDir(galleryID string) string {
 	return filepath.Join(r.path, fmt.Sprintf("gallery-%s", galleryID))
 }
