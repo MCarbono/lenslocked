@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"io"
 	"lenslocked/application/usecases"
 	"lenslocked/context"
 	"net/http"
@@ -24,6 +23,7 @@ type Galleries struct {
 	*usecases.DeleteGalleryUseCase
 	*usecases.FindImageUseCase
 	*usecases.DeleteImageUseCase
+	*usecases.CreateImageUsecase
 }
 
 func (g Galleries) New(w http.ResponseWriter, r *http.Request) {
@@ -54,13 +54,6 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	// input := struct {
-	// 	ID    string
-	// 	Title string
-	// }{
-	// 	ID:    gallery.ID,
-	// 	Title: gallery.Title,
-	// }
 	g.Templates.Edit.Execute(w, r, gallery)
 }
 
@@ -108,18 +101,6 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	// var data struct {
-	// 	ID     string
-	// 	Title  string
-	// 	Images []string
-	// }
-	// data.ID = gallery.ID
-	// data.Title = gallery.Title
-	// for i := 0; i < 20; i++ {
-	// 	w, h := rand.Intn(500)+200, rand.Intn(500)+200
-	// 	catImageURL := fmt.Sprintf("https://placekitten.com/%d/%d", w, h)
-	// 	data.Images = append(data.Images, catImageURL)
-	// }
 	g.Templates.Show.Execute(w, r, gallery)
 }
 
@@ -171,7 +152,12 @@ func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer file.Close()
-		fmt.Printf("Attempting to upload %v for gallery %v\n", fileHeader.Filename, galleryID)
-		io.Copy(w, file)
+		err = g.CreateImageUsecase.Execute(&usecases.CreateImageInput{GalleryID: galleryID, Filename: fileHeader.Filename, Contents: file})
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+		editPath := fmt.Sprintf("/galleries/%s/edit", galleryID)
+		http.Redirect(w, r, editPath, http.StatusFound)
 	}
 }
