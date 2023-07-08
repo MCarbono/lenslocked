@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"io"
 	"lenslocked/application/usecases"
 	"lenslocked/context"
 	"net/http"
@@ -152,4 +153,25 @@ func (g Galleries) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	}
 	editPath := fmt.Sprintf("/galleries/%s/edit", id)
 	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
+func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
+	//validate the userID and the gallery ID - if the user own it
+	galleryID := chi.URLParam(r, "id")
+	err := r.ParseMultipartForm(5 << 20)
+	if err != nil {
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	fileHeaders := r.MultipartForm.File["images"]
+	for _, fileHeader := range fileHeaders {
+		file, err := fileHeader.Open()
+		if err != nil {
+			http.Error(w, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		fmt.Printf("Attempting to upload %v for gallery %v\n", fileHeader.Filename, galleryID)
+		io.Copy(w, file)
+	}
 }
