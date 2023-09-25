@@ -48,13 +48,11 @@ to the project. It's neccessary to put values in the variables so that the proje
 After configuring the .env file, inside the root folder, run one of the commands below:
 
 ```bash
-    # Go command
-    $ go run main.go 
+    go run main.go 
 ```
 
 ```bash
-    # Makefile command
-    $ make run
+    make run
 ```
 
 Open your browser and type at the address bar: http://localhost:SERVER_PORT
@@ -68,11 +66,9 @@ Open your browser and type at the address bar: http://localhost:SERVER_PORT
 Inside the root folder, run one of the commands below:
 
 ```bash
-    # Makefile command
-    $ make tests
+   make tests
 ```
 
 ```bash
-    # Go command
-    $ go test ./tests -v
+    go test ./tests -v
 ```
